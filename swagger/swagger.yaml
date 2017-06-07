@@ -2,44 +2,84 @@ basePath: /v1
 consumes:
 - application/json
 definitions:
-  AntEventCreResult:
-    description: 创建事件成功返回 (default view)
+  AddRegeventPayload:
     example:
-      eid: At architecto consectetur voluptas quod ut id.
-    properties:
-      eid:
-        description: 事件唯一标识
-        example: At architecto consectetur voluptas quod ut id.
-        type: string
-    title: 'Mediatype identifier: application/vnd.ant.event.cre.result+json; view=default'
-    type: object
-  PostEventPayload:
-    example:
-      action: Quibusdam praesentium ullam.
-      etype: Quia architecto.
-      from: Soluta voluptatum neque possimus alias.
-      occtime: Minima eum modi et corporis corporis.
-      params: 0.6617215
+      action: Et quia quia cum voluptate.
+      bakurl: Ut quam fugiat aliquid.
+      etype: Consequatur recusandae repellendus rerum dolorem libero sunt.
+      from: Nemo sit aut neque.
     properties:
       action:
-        description: 事件行为
-        example: Quibusdam praesentium ullam.
+        description: 事件行为,不设置该项则注册监听所有行为变化
+        example: Et quia quia cum voluptate.
+        type: string
+      bakurl:
+        description: 回调路径
+        example: Ut quam fugiat aliquid.
         type: string
       etype:
         description: 事件类型
-        example: Quia architecto.
+        example: Consequatur recusandae repellendus rerum dolorem libero sunt.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Soluta voluptatum neque possimus alias.
+        example: Nemo sit aut neque.
+        type: string
+    required:
+    - etype
+    - bakurl
+    - from
+    title: AddRegeventPayload
+    type: object
+  AntRegResult:
+    description: 注册事件监听成功 (default view)
+    example:
+      ok: true
+    properties:
+      ok:
+        description: 成功标识
+        example: true
+        type: boolean
+    title: 'Mediatype identifier: application/vnd.ant.reg.result+json; view=default'
+    type: object
+  AntResult:
+    description: 创建事件成功返回 (default view)
+    example:
+      eid: Pariatur voluptatem perferendis corrupti voluptatem quia quisquam.
+    properties:
+      eid:
+        description: 事件唯一标识
+        example: Pariatur voluptatem perferendis corrupti voluptatem quia quisquam.
+        type: string
+    title: 'Mediatype identifier: application/vnd.ant.result+json; view=default'
+    type: object
+  PostEventPayload:
+    example:
+      action: Quod quia aut non eius.
+      etype: Consequuntur voluptas.
+      from: Quibusdam dolores et excepturi asperiores porro ipsum.
+      occtime: Facere aspernatur natus modi quia.
+      params: false
+    properties:
+      action:
+        description: 事件行为
+        example: Quod quia aut non eius.
+        type: string
+      etype:
+        description: 事件类型
+        example: Consequuntur voluptas.
+        type: string
+      from:
+        description: 产生事件的服务器标识
+        example: Quibusdam dolores et excepturi asperiores porro ipsum.
         type: string
       occtime:
         description: 事件发生时间
-        example: Minima eum modi et corporis corporis.
+        example: Facere aspernatur natus modi quia.
         type: string
       params:
         description: 事件发生时间
-        example: 0.6617215
+        example: false
     required:
     - etype
     - action
@@ -48,31 +88,31 @@ definitions:
     type: object
   PutEventPayload:
     example:
-      action: Consequatur vitae ut.
-      etype: Natus ut quidem pariatur voluptatem perferendis corrupti.
-      from: Quia quisquam in.
-      occtime: Quia aut non eius perspiciatis consequuntur.
-      params: false
+      action: Sequi illo dolor deserunt ipsam.
+      etype: Enim minima qui fugit rerum ab itaque.
+      from: Sit eius ad voluptas suscipit sed.
+      occtime: Laudantium illo non.
+      params: b1eba3b8-220e-4162-8ad5-077a994985b1
     properties:
       action:
         description: 事件行为
-        example: Consequatur vitae ut.
+        example: Sequi illo dolor deserunt ipsam.
         type: string
       etype:
         description: 事件类型
-        example: Natus ut quidem pariatur voluptatem perferendis corrupti.
+        example: Enim minima qui fugit rerum ab itaque.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Quia quisquam in.
+        example: Sit eius ad voluptas suscipit sed.
         type: string
       occtime:
         description: 事件发生时间
-        example: Quia aut non eius perspiciatis consequuntur.
+        example: Laudantium illo non.
         type: string
       params:
         description: 事件发生时间
-        example: false
+        example: b1eba3b8-220e-4162-8ad5-077a994985b1
     required:
     - etype
     - action
@@ -85,6 +125,75 @@ info:
   title: 蚁动事件引擎
   version: ""
 paths:
+  /admin/event:
+    get:
+      description: 注册事件监听
+      operationId: regevent#list
+      parameters:
+      - description: 事件行为,不设置该项则注册监听所有行为变化
+        in: query
+        name: count
+        required: false
+        type: integer
+      - description: 事件类型
+        in: query
+        name: page
+        required: false
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: list regevent
+      tags:
+      - regevent
+  /admin/event/{rid}:
+    delete:
+      description: 取消事件监听
+      operationId: regevent#remove
+      parameters:
+      - description: 事件监听唯一标识
+        in: path
+        name: rid
+        required: true
+        type: string
+      produces:
+      - application/vnd.ant.result+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AntResult'
+      schemes:
+      - http
+      summary: remove regevent
+      tags:
+      - regevent
+  /admin/event/reg:
+    post:
+      description: 注册事件监听
+      operationId: regevent#add
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/AddRegeventPayload'
+      produces:
+      - application/vnd.ant.reg.result+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AntRegResult'
+      schemes:
+      - http
+      summary: add regevent
+      tags:
+      - regevent
   /event:
     post:
       description: 创建一个事件
@@ -96,12 +205,12 @@ paths:
         schema:
           $ref: '#/definitions/PostEventPayload'
       produces:
-      - application/vnd.ant.event.cre.result+json
+      - application/vnd.ant.result+json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AntEventCreResult'
+            $ref: '#/definitions/AntResult'
       schemes:
       - http
       summary: post event
@@ -123,12 +232,12 @@ paths:
         schema:
           $ref: '#/definitions/PutEventPayload'
       produces:
-      - application/vnd.ant.event.cre.result+json
+      - application/vnd.ant.result+json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AntEventCreResult'
+            $ref: '#/definitions/AntResult'
         "404":
           description: Not Found
       schemes:

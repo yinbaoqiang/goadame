@@ -11,20 +11,120 @@
 package client
 
 import (
+	"github.com/goadesign/goa"
 	"net/http"
 )
 
+// 处理失败 (default view)
+//
+// Identifier: application/vnd.ant.error+json; view=default
+type AntError struct {
+	// 错误描述
+	Msg *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
+}
+
+// DecodeAntError decodes the AntError instance encoded in resp body.
+func (c *Client) DecodeAntError(resp *http.Response) (*AntError, error) {
+	var decoded AntError
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// 事件监听信息 (default view)
+//
+// Identifier: application/vnd.ant.reg+json; view=default
+type AntReg struct {
+	// 事件行为,不设置该项则注册监听所有行为变化
+	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
+	// 回调路径
+	Bakurl string `form:"bakurl" json:"bakurl" xml:"bakurl"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+	// 注册事件监听唯一标识
+	Rid string `form:"rid" json:"rid" xml:"rid"`
+}
+
+// Validate validates the AntReg media type instance.
+func (mt *AntReg) Validate() (err error) {
+	if mt.Rid == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "rid"))
+	}
+	if mt.Etype == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "etype"))
+	}
+	if mt.Bakurl == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "bakurl"))
+	}
+	if mt.From == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "from"))
+	}
+	return
+}
+
+// DecodeAntReg decodes the AntReg instance encoded in resp body.
+func (c *Client) DecodeAntReg(resp *http.Response) (*AntReg, error) {
+	var decoded AntReg
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// 事件监听列表 (default view)
+//
+// Identifier: application/vnd.ant.reg.list+json; view=default
+type AntRegList struct {
+	// 事件类型
+	List []*AntReg `form:"list,omitempty" json:"list,omitempty" xml:"list,omitempty"`
+	// 总数量
+	Total int `form:"total" json:"total" xml:"total"`
+}
+
+// Validate validates the AntRegList media type instance.
+func (mt *AntRegList) Validate() (err error) {
+	for _, e := range mt.List {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeAntRegList decodes the AntRegList instance encoded in resp body.
+func (c *Client) DecodeAntRegList(resp *http.Response) (*AntRegList, error) {
+	var decoded AntRegList
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// 注册事件监听成功 (default view)
+//
+// Identifier: application/vnd.ant.reg.result+json; view=default
+type AntRegResult struct {
+	// 成功标识
+	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+}
+
+// DecodeAntRegResult decodes the AntRegResult instance encoded in resp body.
+func (c *Client) DecodeAntRegResult(resp *http.Response) (*AntRegResult, error) {
+	var decoded AntRegResult
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // 创建事件成功返回 (default view)
 //
-// Identifier: application/vnd.ant.event.cre.result+json; view=default
-type AntEventCreResult struct {
+// Identifier: application/vnd.ant.result+json; view=default
+type AntResult struct {
 	// 事件唯一标识
 	Eid *string `form:"eid,omitempty" json:"eid,omitempty" xml:"eid,omitempty"`
 }
 
-// DecodeAntEventCreResult decodes the AntEventCreResult instance encoded in resp body.
-func (c *Client) DecodeAntEventCreResult(resp *http.Response) (*AntEventCreResult, error) {
-	var decoded AntEventCreResult
+// DecodeAntResult decodes the AntResult instance encoded in resp body.
+func (c *Client) DecodeAntResult(resp *http.Response) (*AntResult, error) {
+	var decoded AntResult
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }

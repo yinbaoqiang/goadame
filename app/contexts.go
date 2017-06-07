@@ -14,6 +14,7 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
+	"strconv"
 )
 
 // PostEventContext provides the event post action context.
@@ -114,8 +115,8 @@ func (payload *PostEventPayload) Validate() (err error) {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *PostEventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result+json")
+func (ctx *PostEventContext) OK(r *AntResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -223,8 +224,8 @@ func (payload *PutEventPayload) Validate() (err error) {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *PutEventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result+json")
+func (ctx *PutEventContext) OK(r *AntResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -232,4 +233,180 @@ func (ctx *PutEventContext) OK(r *AntEventCreResult) error {
 func (ctx *PutEventContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
+}
+
+// AddRegeventContext provides the regevent add action context.
+type AddRegeventContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *AddRegeventPayload
+}
+
+// NewAddRegeventContext parses the incoming request URL and body, performs validations and creates the
+// context used by the regevent controller add action.
+func NewAddRegeventContext(ctx context.Context, r *http.Request, service *goa.Service) (*AddRegeventContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := AddRegeventContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// addRegeventPayload is the regevent add action payload.
+type addRegeventPayload struct {
+	// 事件行为,不设置该项则注册监听所有行为变化
+	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
+	// 回调路径
+	Bakurl *string `form:"bakurl,omitempty" json:"bakurl,omitempty" xml:"bakurl,omitempty"`
+	// 事件类型
+	Etype *string `form:"etype,omitempty" json:"etype,omitempty" xml:"etype,omitempty"`
+	// 产生事件的服务器标识
+	From *string `form:"from,omitempty" json:"from,omitempty" xml:"from,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *addRegeventPayload) Validate() (err error) {
+	if payload.Etype == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Bakurl == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "bakurl"))
+	}
+	if payload.From == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
+// Publicize creates AddRegeventPayload from addRegeventPayload
+func (payload *addRegeventPayload) Publicize() *AddRegeventPayload {
+	var pub AddRegeventPayload
+	if payload.Action != nil {
+		pub.Action = payload.Action
+	}
+	if payload.Bakurl != nil {
+		pub.Bakurl = *payload.Bakurl
+	}
+	if payload.Etype != nil {
+		pub.Etype = *payload.Etype
+	}
+	if payload.From != nil {
+		pub.From = *payload.From
+	}
+	return &pub
+}
+
+// AddRegeventPayload is the regevent add action payload.
+type AddRegeventPayload struct {
+	// 事件行为,不设置该项则注册监听所有行为变化
+	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
+	// 回调路径
+	Bakurl string `form:"bakurl" json:"bakurl" xml:"bakurl"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *AddRegeventPayload) Validate() (err error) {
+	if payload.Etype == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Bakurl == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "bakurl"))
+	}
+	if payload.From == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *AddRegeventContext) OK(r *AntRegResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.result+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// ListRegeventContext provides the regevent list action context.
+type ListRegeventContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Count *int
+	Page  *int
+}
+
+// NewListRegeventContext parses the incoming request URL and body, performs validations and creates the
+// context used by the regevent controller list action.
+func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListRegeventContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListRegeventContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramCount := req.Params["count"]
+	if len(paramCount) > 0 {
+		rawCount := paramCount[0]
+		if count, err2 := strconv.Atoi(rawCount); err2 == nil {
+			tmp2 := count
+			tmp1 := &tmp2
+			rctx.Count = tmp1
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("count", rawCount, "integer"))
+		}
+	}
+	paramPage := req.Params["page"]
+	if len(paramPage) > 0 {
+		rawPage := paramPage[0]
+		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
+			tmp4 := page
+			tmp3 := &tmp4
+			rctx.Page = tmp3
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListRegeventContext) OK(r []*AntRegList) error {
+	ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// RemoveRegeventContext provides the regevent remove action context.
+type RemoveRegeventContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Rid string
+}
+
+// NewRemoveRegeventContext parses the incoming request URL and body, performs validations and creates the
+// context used by the regevent controller remove action.
+func NewRemoveRegeventContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveRegeventContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := RemoveRegeventContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramRid := req.Params["rid"]
+	if len(paramRid) > 0 {
+		rawRid := paramRid[0]
+		rctx.Rid = rawRid
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *RemoveRegeventContext) OK(r *AntResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

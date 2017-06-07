@@ -43,29 +43,51 @@ type (
 		Eid         string
 		PrettyPrint bool
 	}
+
+	// AddRegeventCommand is the command line data structure for the add action of regevent
+	AddRegeventCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
+	// ListRegeventCommand is the command line data structure for the list action of regevent
+	ListRegeventCommand struct {
+		// 事件行为,不设置该项则注册监听所有行为变化
+		Count int
+		// 事件类型
+		Page        int
+		PrettyPrint bool
+	}
+
+	// RemoveRegeventCommand is the command line data structure for the remove action of regevent
+	RemoveRegeventCommand struct {
+		// 事件监听唯一标识
+		Rid         string
+		PrettyPrint bool
+	}
 )
 
 // RegisterCommands registers the resource action CLI commands.
 func RegisterCommands(app *cobra.Command, c *client.Client) {
 	var command, sub *cobra.Command
 	command = &cobra.Command{
-		Use:   "post",
-		Short: `创建一个事件`,
+		Use:   "add",
+		Short: `注册事件监听`,
 	}
-	tmp1 := new(PostEventCommand)
+	tmp1 := new(AddRegeventCommand)
 	sub = &cobra.Command{
-		Use:   `event ["/v1/event"]`,
+		Use:   `regevent ["/v1/admin/event/reg"]`,
 		Short: ``,
 		Long: `
 
 Payload example:
 
 {
-   "action": "Quibusdam praesentium ullam.",
-   "etype": "Quia architecto.",
-   "from": "Soluta voluptatum neque possimus alias.",
-   "occtime": "Minima eum modi et corporis corporis.",
-   "params": 0.661721511575174
+   "action": "Et quia quia cum voluptate.",
+   "bakurl": "Ut quam fugiat aliquid.",
+   "etype": "Consequatur recusandae repellendus rerum dolorem libero sunt.",
+   "from": "Nemo sit aut neque."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -74,10 +96,49 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "list",
+		Short: `注册事件监听`,
+	}
+	tmp2 := new(ListRegeventCommand)
+	sub = &cobra.Command{
+		Use:   `regevent ["/v1/admin/event"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+	}
+	tmp2.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "post",
+		Short: `创建一个事件`,
+	}
+	tmp3 := new(PostEventCommand)
+	sub = &cobra.Command{
+		Use:   `event ["/v1/event"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "action": "Quod quia aut non eius.",
+   "etype": "Consequuntur voluptas.",
+   "from": "Quibusdam dolores et excepturi asperiores porro ipsum.",
+   "occtime": "Facere aspernatur natus modi quia.",
+   "params": false
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+	}
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "put",
 		Short: `创建一个事件`,
 	}
-	tmp2 := new(PutEventCommand)
+	tmp4 := new(PutEventCommand)
 	sub = &cobra.Command{
 		Use:   `event ["/v1/event/EID"]`,
 		Short: ``,
@@ -86,16 +147,30 @@ Payload example:
 Payload example:
 
 {
-   "action": "Consequatur vitae ut.",
-   "etype": "Natus ut quidem pariatur voluptatem perferendis corrupti.",
-   "from": "Quia quisquam in.",
-   "occtime": "Quia aut non eius perspiciatis consequuntur.",
-   "params": false
+   "action": "Sequi illo dolor deserunt ipsam.",
+   "etype": "Enim minima qui fugit rerum ab itaque.",
+   "from": "Sit eius ad voluptas suscipit sed.",
+   "occtime": "Laudantium illo non.",
+   "params": "a14e0987-0492-4ddb-8cd7-15ef7e7eff22"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
-	tmp2.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "remove",
+		Short: `取消事件监听`,
+	}
+	tmp5 := new(RemoveRegeventCommand)
+	sub = &cobra.Command{
+		Use:   `regevent ["/v1/admin/event/RID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+	}
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -319,4 +394,91 @@ func (cmd *PutEventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var eid string
 	cc.Flags().StringVar(&cmd.Eid, "eid", eid, `事件唯一标识`)
+}
+
+// Run makes the HTTP request corresponding to the AddRegeventCommand command.
+func (cmd *AddRegeventCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/v1/admin/event/reg"
+	}
+	var payload client.AddRegeventPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.AddRegevent(ctx, path, &payload)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *AddRegeventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the ListRegeventCommand command.
+func (cmd *ListRegeventCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/v1/admin/event"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ListRegevent(ctx, path, intFlagVal("count", cmd.Count), intFlagVal("page", cmd.Page))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ListRegeventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var count int
+	cc.Flags().IntVar(&cmd.Count, "count", count, `事件行为,不设置该项则注册监听所有行为变化`)
+	var page int
+	cc.Flags().IntVar(&cmd.Page, "page", page, `事件类型`)
+}
+
+// Run makes the HTTP request corresponding to the RemoveRegeventCommand command.
+func (cmd *RemoveRegeventCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/v1/admin/event/%v", url.QueryEscape(cmd.Rid))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.RemoveRegevent(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *RemoveRegeventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var rid string
+	cc.Flags().StringVar(&cmd.Rid, "rid", rid, `事件监听唯一标识`)
 }

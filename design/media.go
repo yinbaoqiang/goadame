@@ -29,8 +29,8 @@ var ErrMedia = apidsl.MediaType("application/vnd.ant.error+json", func() {
 	})
 })
 
-// CreResultMedia defines the media type used to render bottles.
-var RegResultMedia = apidsl.MediaType("application/vnd.ant.result+json", func() {
+// RegResultMedia defines the media type used to render bottles.
+var RegResultMedia = apidsl.MediaType("application/vnd.ant.reg.result+json", func() {
 	apidsl.Description("注册事件监听成功")
 	apidsl.Attributes(func() { // Attributes define the media type shape.
 		apidsl.Attribute("ok", design.Boolean, "成功标识")
@@ -58,7 +58,7 @@ var RegInfoMedia = apidsl.MediaType("application/vnd.ant.reg+json", func() {
 
 	})
 	apidsl.View("default", func() { // View defines a rendering of the media type.
-		apidsl.Attribute("ridok")  // Media types may have multiple views and must
+		apidsl.Attribute("rid")    // Media types may have multiple views and must
 		apidsl.Attribute("etype")  // Media types may have multiple views and must
 		apidsl.Attribute("action") // Media types may have multiple views and must
 		apidsl.Attribute("from")   // Media types may have multiple views and must

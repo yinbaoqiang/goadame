@@ -111,3 +111,83 @@ func unmarshalPutEventPayload(ctx context.Context, service *goa.Service, req *ht
 	goa.ContextRequest(ctx).Payload = payload.Publicize()
 	return nil
 }
+
+// RegeventController is the controller interface for the Regevent actions.
+type RegeventController interface {
+	goa.Muxer
+	Add(*AddRegeventContext) error
+	List(*ListRegeventContext) error
+	Remove(*RemoveRegeventContext) error
+}
+
+// MountRegeventController "mounts" a Regevent resource controller on the given service.
+func MountRegeventController(service *goa.Service, ctrl RegeventController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewAddRegeventContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*AddRegeventPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Add(rctx)
+	}
+	service.Mux.Handle("POST", "/v1/admin/event/reg", ctrl.MuxHandler("add", h, unmarshalAddRegeventPayload))
+	service.LogInfo("mount", "ctrl", "Regevent", "action", "Add", "route", "POST /v1/admin/event/reg")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListRegeventContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.List(rctx)
+	}
+	service.Mux.Handle("GET", "/v1/admin/event", ctrl.MuxHandler("list", h, nil))
+	service.LogInfo("mount", "ctrl", "Regevent", "action", "List", "route", "GET /v1/admin/event")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewRemoveRegeventContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Remove(rctx)
+	}
+	service.Mux.Handle("DELETE", "/v1/admin/event/:rid", ctrl.MuxHandler("remove", h, nil))
+	service.LogInfo("mount", "ctrl", "Regevent", "action", "Remove", "route", "DELETE /v1/admin/event/:rid")
+}
+
+// unmarshalAddRegeventPayload unmarshals the request body into the context request data Payload field.
+func unmarshalAddRegeventPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &addRegeventPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
