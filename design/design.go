@@ -32,7 +32,6 @@ var _ = apidsl.Resource("event", func() { // Resources group related API endpoin
 			apidsl.Member("from", design.String, "产生事件的服务器标识")
 			apidsl.Member("occtime", design.String, "事件发生时间")
 			apidsl.Member("params", design.Any, "事件发生时间")
-			apidsl.Member("num_val_hash", apidsl.HashOf(design.String, design.Number), "Hash with Number value member")
 			apidsl.Required("etype")
 			apidsl.Required("action")
 			apidsl.Required("from")
