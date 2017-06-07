@@ -11,105 +11,111 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 )
 
-// CreateEventPath computes a request path to the create action of event.
-func CreateEventPath() string {
+// PostEventPayload is the event post action payload.
+type PostEventPayload struct {
+	// 事件行为
+	Action string `form:"action" json:"action" xml:"action"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// PostEventPath computes a request path to the post action of event.
+func PostEventPath() string {
 
 	return fmt.Sprintf("/v1/event")
 }
 
 // 创建一个事件
-func (c *Client) CreateEvent(ctx context.Context, path string, action *string, eid *string, etype *string, from *string, occtime *string, params *interface{}) (*http.Response, error) {
-	req, err := c.NewCreateEventRequest(ctx, path, action, eid, etype, from, occtime, params)
+func (c *Client) PostEvent(ctx context.Context, path string, payload *PostEventPayload) (*http.Response, error) {
+	req, err := c.NewPostEventRequest(ctx, path, payload)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewCreateEventRequest create the request corresponding to the create action endpoint of the event resource.
-func (c *Client) NewCreateEventRequest(ctx context.Context, path string, action *string, eid *string, etype *string, from *string, occtime *string, params *interface{}) (*http.Request, error) {
+// NewPostEventRequest create the request corresponding to the post action endpoint of the event resource.
+func (c *Client) NewPostEventRequest(ctx context.Context, path string, payload *PostEventPayload) (*http.Request, error) {
+	var body bytes.Buffer
+	err := c.Encoder.Encode(payload, &body, "*/*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	if action != nil {
-		values.Set("action", *action)
-	}
-	if eid != nil {
-		values.Set("eid", *eid)
-	}
-	if etype != nil {
-		values.Set("etype", *etype)
-	}
-	if from != nil {
-		values.Set("from", *from)
-	}
-	if occtime != nil {
-		values.Set("occtime", *occtime)
-	}
-	if params != nil {
-		tmp5 := fmt.Sprintf("%v", *params)
-		values.Set("params", tmp5)
-	}
-	u.RawQuery = values.Encode()
-	req, err := http.NewRequest("PUT", u.String(), nil)
+	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
 	}
+	header := req.Header
+	header.Set("Content-Type", "application/json")
 	return req, nil
 }
 
-// Create2EventPath computes a request path to the create2 action of event.
-func Create2EventPath() string {
+// PutEventPayload is the event put action payload.
+type PutEventPayload struct {
+	// 事件行为
+	Action string `form:"action" json:"action" xml:"action"`
+	// 事件唯一标识
+	Eid string `form:"eid" json:"eid" xml:"eid"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// PutEventPath computes a request path to the put action of event.
+func PutEventPath() string {
 
 	return fmt.Sprintf("/v1/event")
 }
 
 // 创建一个事件
-func (c *Client) Create2Event(ctx context.Context, path string, action *string, etype *string, from *string, occtime *string, params *interface{}) (*http.Response, error) {
-	req, err := c.NewCreate2EventRequest(ctx, path, action, etype, from, occtime, params)
+func (c *Client) PutEvent(ctx context.Context, path string, payload *PutEventPayload) (*http.Response, error) {
+	req, err := c.NewPutEventRequest(ctx, path, payload)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewCreate2EventRequest create the request corresponding to the create2 action endpoint of the event resource.
-func (c *Client) NewCreate2EventRequest(ctx context.Context, path string, action *string, etype *string, from *string, occtime *string, params *interface{}) (*http.Request, error) {
+// NewPutEventRequest create the request corresponding to the put action endpoint of the event resource.
+func (c *Client) NewPutEventRequest(ctx context.Context, path string, payload *PutEventPayload) (*http.Request, error) {
+	var body bytes.Buffer
+	err := c.Encoder.Encode(payload, &body, "*/*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	if action != nil {
-		values.Set("action", *action)
-	}
-	if etype != nil {
-		values.Set("etype", *etype)
-	}
-	if from != nil {
-		values.Set("from", *from)
-	}
-	if occtime != nil {
-		values.Set("occtime", *occtime)
-	}
-	if params != nil {
-		tmp6 := fmt.Sprintf("%v", *params)
-		values.Set("params", tmp6)
-	}
-	u.RawQuery = values.Encode()
-	req, err := http.NewRequest("POST", u.String(), nil)
+	req, err := http.NewRequest("PUT", u.String(), &body)
 	if err != nil {
 		return nil, err
 	}
+	header := req.Header
+	header.Set("Content-Type", "application/json")
 	return req, nil
 }

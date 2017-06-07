@@ -24,11 +24,11 @@ import (
 	"net/url"
 )
 
-// CreateEventNotFound runs the method Create of the given controller with the given parameters.
+// PostEventOK runs the method Post of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, action *string, eid *string, etype *string, from *string, occtime *string, params *interface{}) http.ResponseWriter {
+func PostEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PostEventPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -46,81 +46,111 @@ func CreateEventNotFound(t goatest.TInterface, ctx context.Context, service *goa
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		query["action"] = sliceVal
-	}
-	if eid != nil {
-		sliceVal := []string{*eid}
-		query["eid"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		query["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		query["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		query["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		query["params"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/v1/event"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/v1/event"),
 	}
-	req, err := http.NewRequest("PUT", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		prms["action"] = sliceVal
-	}
-	if eid != nil {
-		sliceVal := []string{*eid}
-		prms["eid"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		prms["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		prms["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		prms["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		prms["params"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "EventTest"), rw, req, prms)
-	createCtx, _err := app.NewCreateEventContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	postCtx, __err := app.NewPostEventContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	postCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Create(createCtx)
+	__err = ctrl.Post(postCtx)
 
 	// Validate response
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// PutEventNotFound runs the method Put of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func PutEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PutEventPayload) http.ResponseWriter {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/event"),
+	}
+	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+		panic("invalid test " + _err.Error()) // bug
+	}
+	prms := url.Values{}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "EventTest"), rw, req, prms)
+	putCtx, __err := app.NewPutEventContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
+	}
+	putCtx.Payload = payload
+
+	// Perform action
+	__err = ctrl.Put(putCtx)
+
+	// Validate response
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
@@ -130,125 +160,11 @@ func CreateEventNotFound(t goatest.TInterface, ctx context.Context, service *goa
 	return rw
 }
 
-// CreateEventOK runs the method Create of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func CreateEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, action *string, eid *string, etype *string, from *string, occtime *string, params *interface{}) (http.ResponseWriter, *app.AntEventCreResult) {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-		resp   interface{}
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		query["action"] = sliceVal
-	}
-	if eid != nil {
-		sliceVal := []string{*eid}
-		query["eid"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		query["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		query["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		query["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		query["params"] = sliceVal
-	}
-	u := &url.URL{
-		Path:     fmt.Sprintf("/v1/event"),
-		RawQuery: query.Encode(),
-	}
-	req, err := http.NewRequest("PUT", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	prms := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		prms["action"] = sliceVal
-	}
-	if eid != nil {
-		sliceVal := []string{*eid}
-		prms["eid"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		prms["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		prms["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		prms["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		prms["params"] = sliceVal
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "EventTest"), rw, req, prms)
-	createCtx, _err := app.NewCreateEventContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
-	}
-
-	// Perform action
-	_err = ctrl.Create(createCtx)
-
-	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
-	}
-	var mt *app.AntEventCreResult
-	if resp != nil {
-		var ok bool
-		mt, ok = resp.(*app.AntEventCreResult)
-		if !ok {
-			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEventCreResult", resp)
-		}
-	}
-
-	// Return results
-	return rw, mt
-}
-
-// Create2EventNotFound runs the method Create2 of the given controller with the given parameters.
+// PutEventOK runs the method Put of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func Create2EventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, action *string, etype *string, from *string, occtime *string, params *interface{}) http.ResponseWriter {
+func PutEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PutEventPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -266,184 +182,48 @@ func Create2EventNotFound(t goatest.TInterface, ctx context.Context, service *go
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		query["action"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		query["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		query["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		query["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		query["params"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/v1/event"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/v1/event"),
 	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("PUT", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		prms["action"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		prms["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		prms["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		prms["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		prms["params"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "EventTest"), rw, req, prms)
-	create2Ctx, _err := app.NewCreate2EventContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	putCtx, __err := app.NewPutEventContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	putCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Create2(create2Ctx)
+	__err = ctrl.Put(putCtx)
 
 	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
-	if rw.Code != 404 {
-		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
 
 	// Return results
 	return rw
-}
-
-// Create2EventOK runs the method Create2 of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func Create2EventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, action *string, etype *string, from *string, occtime *string, params *interface{}) (http.ResponseWriter, *app.AntEventCreResult) {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-		resp   interface{}
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		query["action"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		query["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		query["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		query["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		query["params"] = sliceVal
-	}
-	u := &url.URL{
-		Path:     fmt.Sprintf("/v1/event"),
-		RawQuery: query.Encode(),
-	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	prms := url.Values{}
-	if action != nil {
-		sliceVal := []string{*action}
-		prms["action"] = sliceVal
-	}
-	if etype != nil {
-		sliceVal := []string{*etype}
-		prms["etype"] = sliceVal
-	}
-	if from != nil {
-		sliceVal := []string{*from}
-		prms["from"] = sliceVal
-	}
-	if occtime != nil {
-		sliceVal := []string{*occtime}
-		prms["occtime"] = sliceVal
-	}
-	if params != nil {
-		sliceVal := []string{fmt.Sprintf("%v", *params)}
-		prms["params"] = sliceVal
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "EventTest"), rw, req, prms)
-	create2Ctx, _err := app.NewCreate2EventContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
-	}
-
-	// Perform action
-	_err = ctrl.Create2(create2Ctx)
-
-	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
-	}
-	var mt *app.AntEventCreResult
-	if resp != nil {
-		var ok bool
-		mt, ok = resp.(*app.AntEventCreResult)
-		if !ok {
-			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEventCreResult", resp)
-		}
-	}
-
-	// Return results
-	return rw, mt
 }

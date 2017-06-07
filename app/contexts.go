@@ -16,132 +16,233 @@ import (
 	"net/http"
 )
 
-// CreateEventContext provides the event create action context.
-type CreateEventContext struct {
+// PostEventContext provides the event post action context.
+type PostEventContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Action  *string
-	Eid     *string
-	Etype   *string
-	From    *string
-	Occtime *string
-	Params  *interface{}
+	Payload *PostEventPayload
 }
 
-// NewCreateEventContext parses the incoming request URL and body, performs validations and creates the
-// context used by the event controller create action.
-func NewCreateEventContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateEventContext, error) {
+// NewPostEventContext parses the incoming request URL and body, performs validations and creates the
+// context used by the event controller post action.
+func NewPostEventContext(ctx context.Context, r *http.Request, service *goa.Service) (*PostEventContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := CreateEventContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramAction := req.Params["action"]
-	if len(paramAction) > 0 {
-		rawAction := paramAction[0]
-		rctx.Action = &rawAction
-	}
-	paramEid := req.Params["eid"]
-	if len(paramEid) > 0 {
-		rawEid := paramEid[0]
-		rctx.Eid = &rawEid
-	}
-	paramEtype := req.Params["etype"]
-	if len(paramEtype) > 0 {
-		rawEtype := paramEtype[0]
-		rctx.Etype = &rawEtype
-	}
-	paramFrom := req.Params["from"]
-	if len(paramFrom) > 0 {
-		rawFrom := paramFrom[0]
-		rctx.From = &rawFrom
-	}
-	paramOcctime := req.Params["occtime"]
-	if len(paramOcctime) > 0 {
-		rawOcctime := paramOcctime[0]
-		rctx.Occtime = &rawOcctime
-	}
-	paramParams := req.Params["params"]
-	if len(paramParams) > 0 {
-		rawParams := paramParams[0]
-		tmp1 := interface{}(rawParams)
-		rctx.Params = &tmp1
-	}
+	rctx := PostEventContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
+// postEventPayload is the event post action payload.
+type postEventPayload struct {
+	// 事件行为
+	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
+	// 事件类型
+	Etype *string `form:"etype,omitempty" json:"etype,omitempty" xml:"etype,omitempty"`
+	// 产生事件的服务器标识
+	From *string `form:"from,omitempty" json:"from,omitempty" xml:"from,omitempty"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *postEventPayload) Validate() (err error) {
+	if payload.Etype == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Action == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "action"))
+	}
+	if payload.From == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
+// Publicize creates PostEventPayload from postEventPayload
+func (payload *postEventPayload) Publicize() *PostEventPayload {
+	var pub PostEventPayload
+	if payload.Action != nil {
+		pub.Action = *payload.Action
+	}
+	if payload.Etype != nil {
+		pub.Etype = *payload.Etype
+	}
+	if payload.From != nil {
+		pub.From = *payload.From
+	}
+	if payload.Occtime != nil {
+		pub.Occtime = payload.Occtime
+	}
+	if payload.Params != nil {
+		pub.Params = payload.Params
+	}
+	return &pub
+}
+
+// PostEventPayload is the event post action payload.
+type PostEventPayload struct {
+	// 事件行为
+	Action string `form:"action" json:"action" xml:"action"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *PostEventPayload) Validate() (err error) {
+	if payload.Etype == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Action == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "action"))
+	}
+	if payload.From == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
 // OK sends a HTTP response with status code 200.
-func (ctx *CreateEventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+func (ctx *PostEventContext) OK(resp []byte) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/json")
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *CreateEventContext) NotFound() error {
-	ctx.ResponseData.WriteHeader(404)
-	return nil
-}
-
-// Create2EventContext provides the event create2 action context.
-type Create2EventContext struct {
+// PutEventContext provides the event put action context.
+type PutEventContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Action  *string
-	Etype   *string
-	From    *string
-	Occtime *string
-	Params  *interface{}
+	Payload *PutEventPayload
 }
 
-// NewCreate2EventContext parses the incoming request URL and body, performs validations and creates the
-// context used by the event controller create2 action.
-func NewCreate2EventContext(ctx context.Context, r *http.Request, service *goa.Service) (*Create2EventContext, error) {
+// NewPutEventContext parses the incoming request URL and body, performs validations and creates the
+// context used by the event controller put action.
+func NewPutEventContext(ctx context.Context, r *http.Request, service *goa.Service) (*PutEventContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := Create2EventContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramAction := req.Params["action"]
-	if len(paramAction) > 0 {
-		rawAction := paramAction[0]
-		rctx.Action = &rawAction
-	}
-	paramEtype := req.Params["etype"]
-	if len(paramEtype) > 0 {
-		rawEtype := paramEtype[0]
-		rctx.Etype = &rawEtype
-	}
-	paramFrom := req.Params["from"]
-	if len(paramFrom) > 0 {
-		rawFrom := paramFrom[0]
-		rctx.From = &rawFrom
-	}
-	paramOcctime := req.Params["occtime"]
-	if len(paramOcctime) > 0 {
-		rawOcctime := paramOcctime[0]
-		rctx.Occtime = &rawOcctime
-	}
-	paramParams := req.Params["params"]
-	if len(paramParams) > 0 {
-		rawParams := paramParams[0]
-		tmp2 := interface{}(rawParams)
-		rctx.Params = &tmp2
-	}
+	rctx := PutEventContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
+// putEventPayload is the event put action payload.
+type putEventPayload struct {
+	// 事件行为
+	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
+	// 事件唯一标识
+	Eid *string `form:"eid,omitempty" json:"eid,omitempty" xml:"eid,omitempty"`
+	// 事件类型
+	Etype *string `form:"etype,omitempty" json:"etype,omitempty" xml:"etype,omitempty"`
+	// 产生事件的服务器标识
+	From *string `form:"from,omitempty" json:"from,omitempty" xml:"from,omitempty"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *putEventPayload) Validate() (err error) {
+	if payload.Eid == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "eid"))
+	}
+	if payload.Etype == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Action == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "action"))
+	}
+	if payload.From == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
+// Publicize creates PutEventPayload from putEventPayload
+func (payload *putEventPayload) Publicize() *PutEventPayload {
+	var pub PutEventPayload
+	if payload.Action != nil {
+		pub.Action = *payload.Action
+	}
+	if payload.Eid != nil {
+		pub.Eid = *payload.Eid
+	}
+	if payload.Etype != nil {
+		pub.Etype = *payload.Etype
+	}
+	if payload.From != nil {
+		pub.From = *payload.From
+	}
+	if payload.Occtime != nil {
+		pub.Occtime = payload.Occtime
+	}
+	if payload.Params != nil {
+		pub.Params = payload.Params
+	}
+	return &pub
+}
+
+// PutEventPayload is the event put action payload.
+type PutEventPayload struct {
+	// 事件行为
+	Action string `form:"action" json:"action" xml:"action"`
+	// 事件唯一标识
+	Eid string `form:"eid" json:"eid" xml:"eid"`
+	// 事件类型
+	Etype string `form:"etype" json:"etype" xml:"etype"`
+	// 产生事件的服务器标识
+	From string `form:"from" json:"from" xml:"from"`
+	// 事件发生时间
+	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	// 事件发生时间
+	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *PutEventPayload) Validate() (err error) {
+	if payload.Eid == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "eid"))
+	}
+	if payload.Etype == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
+	}
+	if payload.Action == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "action"))
+	}
+	if payload.From == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	return
+}
+
 // OK sends a HTTP response with status code 200.
-func (ctx *Create2EventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+func (ctx *PutEventContext) OK(resp []byte) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/json")
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *Create2EventContext) NotFound() error {
+func (ctx *PutEventContext) NotFound(resp []byte) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/json")
 	ctx.ResponseData.WriteHeader(404)
-	return nil
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }

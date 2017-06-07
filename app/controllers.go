@@ -30,8 +30,8 @@ func initService(service *goa.Service) {
 // EventController is the controller interface for the Event actions.
 type EventController interface {
 	goa.Muxer
-	Create(*CreateEventContext) error
-	Create2(*Create2EventContext) error
+	Post(*PostEventContext) error
+	Put(*PutEventContext) error
 }
 
 // MountEventController "mounts" a Event resource controller on the given service.
@@ -45,14 +45,20 @@ func MountEventController(service *goa.Service, ctrl EventController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewCreateEventContext(ctx, req, service)
+		rctx, err := NewPostEventContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Create(rctx)
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*PostEventPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Post(rctx)
 	}
-	service.Mux.Handle("PUT", "/v1/event", ctrl.MuxHandler("create", h, nil))
-	service.LogInfo("mount", "ctrl", "Event", "action", "Create", "route", "PUT /v1/event")
+	service.Mux.Handle("POST", "/v1/event", ctrl.MuxHandler("post", h, unmarshalPostEventPayload))
+	service.LogInfo("mount", "ctrl", "Event", "action", "Post", "route", "POST /v1/event")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -60,12 +66,48 @@ func MountEventController(service *goa.Service, ctrl EventController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewCreate2EventContext(ctx, req, service)
+		rctx, err := NewPutEventContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Create2(rctx)
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*PutEventPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Put(rctx)
 	}
-	service.Mux.Handle("POST", "/v1/event", ctrl.MuxHandler("create2", h, nil))
-	service.LogInfo("mount", "ctrl", "Event", "action", "Create2", "route", "POST /v1/event")
+	service.Mux.Handle("PUT", "/v1/event", ctrl.MuxHandler("put", h, unmarshalPutEventPayload))
+	service.LogInfo("mount", "ctrl", "Event", "action", "Put", "route", "PUT /v1/event")
+}
+
+// unmarshalPostEventPayload unmarshals the request body into the context request data Payload field.
+func unmarshalPostEventPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &postEventPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalPutEventPayload unmarshals the request body into the context request data Payload field.
+func unmarshalPutEventPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &putEventPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
 }

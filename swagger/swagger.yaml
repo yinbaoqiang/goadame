@@ -2,16 +2,77 @@ basePath: /v1
 consumes:
 - application/json
 definitions:
-  AntEventCreResult:
-    description: 创建事件成功返回 (default view)
+  PostEventPayload:
     example:
-      eid: At architecto consectetur voluptas quod ut id.
+      action: Quibusdam praesentium ullam.
+      etype: Quia architecto.
+      from: Soluta voluptatum neque possimus alias.
+      occtime: Minima eum modi et corporis corporis.
+      params: 0.6617215
     properties:
+      action:
+        description: 事件行为
+        example: Quibusdam praesentium ullam.
+        type: string
+      etype:
+        description: 事件类型
+        example: Quia architecto.
+        type: string
+      from:
+        description: 产生事件的服务器标识
+        example: Soluta voluptatum neque possimus alias.
+        type: string
+      occtime:
+        description: 事件发生时间
+        example: Minima eum modi et corporis corporis.
+        type: string
+      params:
+        description: 事件发生时间
+        example: 0.6617215
+    required:
+    - etype
+    - action
+    - from
+    title: PostEventPayload
+    type: object
+  PutEventPayload:
+    example:
+      action: Consequatur vitae ut.
+      eid: Natus ut quidem pariatur voluptatem perferendis corrupti.
+      etype: Quia quisquam in.
+      from: Quia aut non eius perspiciatis consequuntur.
+      occtime: Voluptatem quibusdam dolores et excepturi.
+      params: 7.9144667e+18
+    properties:
+      action:
+        description: 事件行为
+        example: Consequatur vitae ut.
+        type: string
       eid:
         description: 事件唯一标识
-        example: At architecto consectetur voluptas quod ut id.
+        example: Natus ut quidem pariatur voluptatem perferendis corrupti.
         type: string
-    title: 'Mediatype identifier: application/vnd.ant.event.cre.result; view=default'
+      etype:
+        description: 事件类型
+        example: Quia quisquam in.
+        type: string
+      from:
+        description: 产生事件的服务器标识
+        example: Quia aut non eius perspiciatis consequuntur.
+        type: string
+      occtime:
+        description: 事件发生时间
+        example: Voluptatem quibusdam dolores et excepturi.
+        type: string
+      params:
+        description: 事件发生时间
+        example: 7.9144667e+18
+    required:
+    - eid
+    - etype
+    - action
+    - from
+    title: PutEventPayload
     type: object
 host: localhost:8080
 info:
@@ -22,104 +83,42 @@ paths:
   /event:
     post:
       description: 创建一个事件
-      operationId: event#create2
+      operationId: event#post
       parameters:
-      - description: 事件行为
-        in: query
-        name: action
-        required: false
-        type: string
-      - description: 事件类型
-        in: query
-        name: etype
-        required: false
-        type: string
-      - description: 产生事件的服务器标识
-        in: query
-        name: from
-        required: false
-        type: string
-      - description: 事件发生时间
-        in: query
-        name: occtime
-        required: false
-        type: string
-      - description: 事件发生时间
-        in: query
-        name: params
-        required: false
-        type: any
-      produces:
-      - application/vnd.ant.event.cre.result
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/PostEventPayload'
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/AntEventCreResult'
-        "404":
-          description: Not Found
       schemes:
       - http
-      summary: create2 event
+      summary: post event
       tags:
       - event
     put:
       description: 创建一个事件
-      operationId: event#create
+      operationId: event#put
       parameters:
-      - description: 事件行为
-        in: query
-        name: action
-        required: false
-        type: string
-      - description: 事件唯一标识
-        in: query
-        name: eid
-        required: false
-        type: string
-      - description: 事件类型
-        in: query
-        name: etype
-        required: false
-        type: string
-      - description: 产生事件的服务器标识
-        in: query
-        name: from
-        required: false
-        type: string
-      - description: 事件发生时间
-        in: query
-        name: occtime
-        required: false
-        type: string
-      - description: 事件发生时间
-        in: query
-        name: params
-        required: false
-        type: any
-      produces:
-      - application/vnd.ant.event.cre.result
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/PutEventPayload'
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/AntEventCreResult'
         "404":
           description: Not Found
       schemes:
       - http
-      summary: create event
+      summary: put event
       tags:
       - event
 produces:
 - application/json
-responses:
-  NotFound:
-    description: Not Found
-  OK:
-    description: OK
-    schema:
-      $ref: '#/definitions/AntEventCreResult'
 schemes:
 - http
 swagger: "2.0"

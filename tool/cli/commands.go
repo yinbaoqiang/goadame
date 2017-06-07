@@ -13,6 +13,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
 	uuid "github.com/goadesign/goa/uuid"
@@ -26,35 +27,17 @@ import (
 )
 
 type (
-	// CreateEventCommand is the command line data structure for the create action of event
-	CreateEventCommand struct {
-		// 事件行为
-		Action string
-		// 事件唯一标识
-		Eid string
-		// 事件类型
-		Etype string
-		// 产生事件的服务器标识
-		From string
-		// 事件发生时间
-		Occtime string
-		// 事件发生时间
-		Params      string
+	// PostEventCommand is the command line data structure for the post action of event
+	PostEventCommand struct {
+		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
-	// Create2EventCommand is the command line data structure for the create2 action of event
-	Create2EventCommand struct {
-		// 事件行为
-		Action string
-		// 事件类型
-		Etype string
-		// 产生事件的服务器标识
-		From string
-		// 事件发生时间
-		Occtime string
-		// 事件发生时间
-		Params      string
+	// PutEventCommand is the command line data structure for the put action of event
+	PutEventCommand struct {
+		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 )
@@ -63,28 +46,51 @@ type (
 func RegisterCommands(app *cobra.Command, c *client.Client) {
 	var command, sub *cobra.Command
 	command = &cobra.Command{
-		Use:   "create",
+		Use:   "post",
 		Short: `创建一个事件`,
 	}
-	tmp1 := new(CreateEventCommand)
+	tmp1 := new(PostEventCommand)
 	sub = &cobra.Command{
 		Use:   `event ["/v1/event"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "action": "Quibusdam praesentium ullam.",
+   "etype": "Quia architecto.",
+   "from": "Soluta voluptatum neque possimus alias.",
+   "occtime": "Minima eum modi et corporis corporis.",
+   "params": 0.661721511575174
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
 	tmp1.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp1.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "create2",
+		Use:   "put",
 		Short: `创建一个事件`,
 	}
-	tmp2 := new(Create2EventCommand)
+	tmp2 := new(PutEventCommand)
 	sub = &cobra.Command{
 		Use:   `event ["/v1/event"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "action": "Consequatur vitae ut.",
+   "eid": "Natus ut quidem pariatur voluptatem perferendis corrupti.",
+   "etype": "Quia quisquam in.",
+   "from": "Quia aut non eius perspiciatis consequuntur.",
+   "occtime": "Voluptatem quibusdam dolores et excepturi.",
+   "params": 7914466826120868355
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
 	tmp2.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
@@ -245,26 +251,24 @@ func boolArray(ins []string) ([]bool, error) {
 	return vals, nil
 }
 
-// Run makes the HTTP request corresponding to the CreateEventCommand command.
-func (cmd *CreateEventCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the PostEventCommand command.
+func (cmd *PostEventCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
 	} else {
 		path = "/v1/event"
 	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp3 *interface{}
-	if cmd.Params != "" {
-		var err error
-		tmp3, err = jsonVal(cmd.Params)
+	var payload client.PostEventPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {
-			goa.LogError(ctx, "failed to parse flag into *interface{} value", "flag", "--params", "err", err)
-			return err
+			return fmt.Errorf("failed to deserialize payload: %s", err)
 		}
 	}
-	resp, err := c.CreateEvent(ctx, path, stringFlagVal("action", cmd.Action), stringFlagVal("eid", cmd.Eid), stringFlagVal("etype", cmd.Etype), stringFlagVal("from", cmd.From), stringFlagVal("occtime", cmd.Occtime), tmp3)
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.PostEvent(ctx, path, &payload)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -275,41 +279,29 @@ func (cmd *CreateEventCommand) Run(c *client.Client, args []string) error {
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *CreateEventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var action string
-	cc.Flags().StringVar(&cmd.Action, "action", action, `事件行为`)
-	var eid string
-	cc.Flags().StringVar(&cmd.Eid, "eid", eid, `事件唯一标识`)
-	var etype string
-	cc.Flags().StringVar(&cmd.Etype, "etype", etype, `事件类型`)
-	var from string
-	cc.Flags().StringVar(&cmd.From, "from", from, `产生事件的服务器标识`)
-	var occtime string
-	cc.Flags().StringVar(&cmd.Occtime, "occtime", occtime, `事件发生时间`)
-	var params string
-	cc.Flags().StringVar(&cmd.Params, "params", params, `事件发生时间`)
+func (cmd *PostEventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
-// Run makes the HTTP request corresponding to the Create2EventCommand command.
-func (cmd *Create2EventCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the PutEventCommand command.
+func (cmd *PutEventCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
 	} else {
 		path = "/v1/event"
 	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp4 *interface{}
-	if cmd.Params != "" {
-		var err error
-		tmp4, err = jsonVal(cmd.Params)
+	var payload client.PutEventPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {
-			goa.LogError(ctx, "failed to parse flag into *interface{} value", "flag", "--params", "err", err)
-			return err
+			return fmt.Errorf("failed to deserialize payload: %s", err)
 		}
 	}
-	resp, err := c.Create2Event(ctx, path, stringFlagVal("action", cmd.Action), stringFlagVal("etype", cmd.Etype), stringFlagVal("from", cmd.From), stringFlagVal("occtime", cmd.Occtime), tmp4)
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.PutEvent(ctx, path, &payload)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -320,15 +312,7 @@ func (cmd *Create2EventCommand) Run(c *client.Client, args []string) error {
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *Create2EventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var action string
-	cc.Flags().StringVar(&cmd.Action, "action", action, `事件行为`)
-	var etype string
-	cc.Flags().StringVar(&cmd.Etype, "etype", etype, `事件类型`)
-	var from string
-	cc.Flags().StringVar(&cmd.From, "from", from, `产生事件的服务器标识`)
-	var occtime string
-	cc.Flags().StringVar(&cmd.Occtime, "occtime", occtime, `事件发生时间`)
-	var params string
-	cc.Flags().StringVar(&cmd.Params, "params", params, `事件发生时间`)
+func (cmd *PutEventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
