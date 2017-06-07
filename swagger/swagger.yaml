@@ -1,0 +1,125 @@
+basePath: /v1
+consumes:
+- application/json
+definitions:
+  AntEventCreResult:
+    description: 创建事件成功返回 (default view)
+    example:
+      eid: At architecto consectetur voluptas quod ut id.
+    properties:
+      eid:
+        description: 事件唯一标识
+        example: At architecto consectetur voluptas quod ut id.
+        type: string
+    title: 'Mediatype identifier: application/vnd.ant.event.cre.result; view=default'
+    type: object
+host: localhost:8080
+info:
+  description: 这是一个事件服务引擎
+  title: 蚁动事件引擎
+  version: ""
+paths:
+  /event:
+    post:
+      description: 创建一个事件
+      operationId: event#create2
+      parameters:
+      - description: 事件行为
+        in: query
+        name: action
+        required: false
+        type: string
+      - description: 事件类型
+        in: query
+        name: etype
+        required: false
+        type: string
+      - description: 产生事件的服务器标识
+        in: query
+        name: from
+        required: false
+        type: string
+      - description: 事件发生时间
+        in: query
+        name: occtime
+        required: false
+        type: string
+      - description: 事件发生时间
+        in: query
+        name: params
+        required: false
+        type: any
+      produces:
+      - application/vnd.ant.event.cre.result
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AntEventCreResult'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: create2 event
+      tags:
+      - event
+    put:
+      description: 创建一个事件
+      operationId: event#create
+      parameters:
+      - description: 事件行为
+        in: query
+        name: action
+        required: false
+        type: string
+      - description: 事件唯一标识
+        in: query
+        name: eid
+        required: false
+        type: string
+      - description: 事件类型
+        in: query
+        name: etype
+        required: false
+        type: string
+      - description: 产生事件的服务器标识
+        in: query
+        name: from
+        required: false
+        type: string
+      - description: 事件发生时间
+        in: query
+        name: occtime
+        required: false
+        type: string
+      - description: 事件发生时间
+        in: query
+        name: params
+        required: false
+        type: any
+      produces:
+      - application/vnd.ant.event.cre.result
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AntEventCreResult'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: create event
+      tags:
+      - event
+produces:
+- application/json
+responses:
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+    schema:
+      $ref: '#/definitions/AntEventCreResult'
+schemes:
+- http
+swagger: "2.0"
