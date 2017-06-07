@@ -12,7 +12,7 @@ package app
 
 // 创建事件成功返回 (default view)
 //
-// Identifier: application/vnd.ant.event.cre.result; view=default
+// Identifier: application/vnd.ant.event.cre.result+json; view=default
 type AntEventCreResult struct {
 	// 事件唯一标识
 	Eid *string `form:"eid,omitempty" json:"eid,omitempty" xml:"eid,omitempty"`

@@ -11,7 +11,7 @@ definitions:
         description: 事件唯一标识
         example: At architecto consectetur voluptas quod ut id.
         type: string
-    title: 'Mediatype identifier: application/vnd.ant.event.cre.result; view=default'
+    title: 'Mediatype identifier: application/vnd.ant.event.cre.result+json; view=default'
     type: object
   PostEventPayload:
     example:
@@ -96,7 +96,7 @@ paths:
         schema:
           $ref: '#/definitions/PostEventPayload'
       produces:
-      - application/vnd.ant.event.cre.result
+      - application/vnd.ant.event.cre.result+json
       responses:
         "200":
           description: OK
@@ -123,7 +123,7 @@ paths:
         schema:
           $ref: '#/definitions/PutEventPayload'
       produces:
-      - application/vnd.ant.event.cre.result
+      - application/vnd.ant.event.cre.result+json
       responses:
         "200":
           description: OK

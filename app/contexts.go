@@ -115,7 +115,7 @@ func (payload *PostEventPayload) Validate() (err error) {
 
 // OK sends a HTTP response with status code 200.
 func (ctx *PostEventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -224,7 +224,7 @@ func (payload *PutEventPayload) Validate() (err error) {
 
 // OK sends a HTTP response with status code 200.
 func (ctx *PutEventContext) OK(r *AntEventCreResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 

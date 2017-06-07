@@ -64,7 +64,7 @@ var _ = apidsl.Resource("event", func() { // Resources group related API endpoin
 })
 
 // CreResultMedia defines the media type used to render bottles.
-var CreResultMedia = apidsl.MediaType("application/vnd.ant.event.cre.result", func() {
+var CreResultMedia = apidsl.MediaType("application/vnd.ant.event.cre.result+json", func() {
 	apidsl.Description("创建事件成功返回")
 	apidsl.Attributes(func() { // Attributes define the media type shape.
 		apidsl.Attribute("eid", design.String, "事件唯一标识")
