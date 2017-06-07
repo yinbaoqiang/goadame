@@ -32,7 +32,7 @@ var _ = apidsl.Resource("event", func() { // Resources group related API endpoin
 			apidsl.Member("from", design.String, "产生事件的服务器标识")
 			apidsl.Member("occtime", design.String, "事件发生时间")
 			apidsl.Member("params", design.Any, "事件发生时间")
-
+			apidsl.Member("num_val_hash", apidsl.HashOf(design.String, design.Number), "Hash with Number value member")
 			apidsl.Required("etype")
 			apidsl.Required("action")
 			apidsl.Required("from")
@@ -60,17 +60,5 @@ var _ = apidsl.Resource("event", func() { // Resources group related API endpoin
 		})
 
 		apidsl.Response(design.OK, CreResultMedia)
-	})
-})
-
-// CreResultMedia defines the media type used to render bottles.
-var CreResultMedia = apidsl.MediaType("application/vnd.ant.event.cre.result+json", func() {
-	apidsl.Description("创建事件成功返回")
-	apidsl.Attributes(func() { // Attributes define the media type shape.
-		apidsl.Attribute("eid", design.String, "事件唯一标识")
-
-	})
-	apidsl.View("default", func() { // View defines a rendering of the media type.
-		apidsl.Attribute("eid") // Media types may have multiple views and must
 	})
 })

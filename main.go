@@ -6,6 +6,7 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/yinbaoqiang/goadame/app"
+	"github.com/yinbaoqiang/goadame/controllers"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 	service.Use(middleware.Recover())
 
 	// Mount "event" controller
-	c := NewEventController(service)
+	c := controllers.NewEventController(service)
 	app.MountEventController(service, c)
 
 	// Start service
