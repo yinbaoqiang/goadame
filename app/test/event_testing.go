@@ -25,10 +25,10 @@ import (
 )
 
 // PostEventOK runs the method Post of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func PostEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PostEventPayload) http.ResponseWriter {
+func PostEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PostEventPayload) (http.ResponseWriter, *app.AntEventCreResult) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -54,7 +54,7 @@ func PostEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 			panic(err) // bug
 		}
 		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
+		return nil, nil
 	}
 
 	// Setup request context
@@ -87,16 +87,24 @@ func PostEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
+	var mt *app.AntEventCreResult
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.AntEventCreResult)
+		if !_ok {
+			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEventCreResult", resp)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // PutEventNotFound runs the method Put of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func PutEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PutEventPayload) http.ResponseWriter {
+func PutEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, eid string, payload *app.PutEventPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -128,13 +136,14 @@ func PutEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/v1/event"),
+		Path: fmt.Sprintf("/v1/event/%v", eid),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["eid"] = []string{fmt.Sprintf("%v", eid)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -161,10 +170,10 @@ func PutEventNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 }
 
 // PutEventOK runs the method Put of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func PutEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, payload *app.PutEventPayload) http.ResponseWriter {
+func PutEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.EventController, eid string, payload *app.PutEventPayload) (http.ResponseWriter, *app.AntEventCreResult) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -190,19 +199,20 @@ func PutEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 			panic(err) // bug
 		}
 		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
+		return nil, nil
 	}
 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/v1/event"),
+		Path: fmt.Sprintf("/v1/event/%v", eid),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["eid"] = []string{fmt.Sprintf("%v", eid)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -223,7 +233,15 @@ func PutEventOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
+	var mt *app.AntEventCreResult
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.AntEventCreResult)
+		if !_ok {
+			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEventCreResult", resp)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }

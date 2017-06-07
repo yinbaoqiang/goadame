@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yinbaoqiang/goadame/client"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -38,6 +39,8 @@ type (
 	PutEventCommand struct {
 		Payload     string
 		ContentType string
+		// 事件唯一标识
+		Eid         string
 		PrettyPrint bool
 	}
 )
@@ -76,7 +79,7 @@ Payload example:
 	}
 	tmp2 := new(PutEventCommand)
 	sub = &cobra.Command{
-		Use:   `event ["/v1/event"]`,
+		Use:   `event ["/v1/event/EID"]`,
 		Short: ``,
 		Long: `
 
@@ -84,11 +87,10 @@ Payload example:
 
 {
    "action": "Consequatur vitae ut.",
-   "eid": "Natus ut quidem pariatur voluptatem perferendis corrupti.",
-   "etype": "Quia quisquam in.",
-   "from": "Quia aut non eius perspiciatis consequuntur.",
-   "occtime": "Voluptatem quibusdam dolores et excepturi.",
-   "params": 7914466826120868355
+   "etype": "Natus ut quidem pariatur voluptatem perferendis corrupti.",
+   "from": "Quia quisquam in.",
+   "occtime": "Quia aut non eius perspiciatis consequuntur.",
+   "params": false
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -290,7 +292,7 @@ func (cmd *PutEventCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/v1/event"
+		path = fmt.Sprintf("/v1/event/%v", url.QueryEscape(cmd.Eid))
 	}
 	var payload client.PutEventPayload
 	if cmd.Payload != "" {
@@ -315,4 +317,6 @@ func (cmd *PutEventCommand) Run(c *client.Client, args []string) error {
 func (cmd *PutEventCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+	var eid string
+	cc.Flags().StringVar(&cmd.Eid, "eid", eid, `事件唯一标识`)
 }

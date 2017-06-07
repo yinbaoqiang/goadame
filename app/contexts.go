@@ -114,11 +114,9 @@ func (payload *PostEventPayload) Validate() (err error) {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *PostEventContext) OK(resp []byte) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/json")
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+func (ctx *PostEventContext) OK(r *AntEventCreResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // PutEventContext provides the event put action context.
@@ -126,6 +124,7 @@ type PutEventContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	Eid     string
 	Payload *PutEventPayload
 }
 
@@ -138,6 +137,11 @@ func NewPutEventContext(ctx context.Context, r *http.Request, service *goa.Servi
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := PutEventContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramEid := req.Params["eid"]
+	if len(paramEid) > 0 {
+		rawEid := paramEid[0]
+		rctx.Eid = rawEid
+	}
 	return &rctx, err
 }
 
@@ -145,8 +149,6 @@ func NewPutEventContext(ctx context.Context, r *http.Request, service *goa.Servi
 type putEventPayload struct {
 	// 事件行为
 	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
-	// 事件唯一标识
-	Eid *string `form:"eid,omitempty" json:"eid,omitempty" xml:"eid,omitempty"`
 	// 事件类型
 	Etype *string `form:"etype,omitempty" json:"etype,omitempty" xml:"etype,omitempty"`
 	// 产生事件的服务器标识
@@ -159,9 +161,6 @@ type putEventPayload struct {
 
 // Validate runs the validation rules defined in the design.
 func (payload *putEventPayload) Validate() (err error) {
-	if payload.Eid == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "eid"))
-	}
 	if payload.Etype == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
 	}
@@ -179,9 +178,6 @@ func (payload *putEventPayload) Publicize() *PutEventPayload {
 	var pub PutEventPayload
 	if payload.Action != nil {
 		pub.Action = *payload.Action
-	}
-	if payload.Eid != nil {
-		pub.Eid = *payload.Eid
 	}
 	if payload.Etype != nil {
 		pub.Etype = *payload.Etype
@@ -202,8 +198,6 @@ func (payload *putEventPayload) Publicize() *PutEventPayload {
 type PutEventPayload struct {
 	// 事件行为
 	Action string `form:"action" json:"action" xml:"action"`
-	// 事件唯一标识
-	Eid string `form:"eid" json:"eid" xml:"eid"`
 	// 事件类型
 	Etype string `form:"etype" json:"etype" xml:"etype"`
 	// 产生事件的服务器标识
@@ -216,9 +210,6 @@ type PutEventPayload struct {
 
 // Validate runs the validation rules defined in the design.
 func (payload *PutEventPayload) Validate() (err error) {
-	if payload.Eid == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "eid"))
-	}
 	if payload.Etype == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "etype"))
 	}
@@ -232,17 +223,13 @@ func (payload *PutEventPayload) Validate() (err error) {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *PutEventContext) OK(resp []byte) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/json")
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+func (ctx *PutEventContext) OK(r *AntEventCreResult) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.event.cre.result")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *PutEventContext) NotFound(resp []byte) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/json")
+func (ctx *PutEventContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+	return nil
 }

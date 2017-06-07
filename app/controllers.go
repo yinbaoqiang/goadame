@@ -78,8 +78,8 @@ func MountEventController(service *goa.Service, ctrl EventController) {
 		}
 		return ctrl.Put(rctx)
 	}
-	service.Mux.Handle("PUT", "/v1/event", ctrl.MuxHandler("put", h, unmarshalPutEventPayload))
-	service.LogInfo("mount", "ctrl", "Event", "action", "Put", "route", "PUT /v1/event")
+	service.Mux.Handle("PUT", "/v1/event/:eid", ctrl.MuxHandler("put", h, unmarshalPutEventPayload))
+	service.LogInfo("mount", "ctrl", "Event", "action", "Put", "route", "PUT /v1/event/:eid")
 }
 
 // unmarshalPostEventPayload unmarshals the request body into the context request data Payload field.

@@ -15,24 +15,24 @@ func NewEventController(service *goa.Service) *EventController {
 	return &EventController{Controller: service.NewController("EventController")}
 }
 
-// Create runs the create action.
-func (c *EventController) Create(ctx *app.CreateEventContext) error {
-	// EventController_Create: start_implement
+// Post runs the post action.
+func (c *EventController) Post(ctx *app.PostEventContext) error {
+	// EventController_Post: start_implement
 
 	// Put your logic here
 
-	// EventController_Create: end_implement
+	// EventController_Post: end_implement
 	res := &app.AntEventCreResult{}
 	return ctx.OK(res)
 }
 
-// Create2 runs the create2 action.
-func (c *EventController) Create2(ctx *app.Create2EventContext) error {
-	// EventController_Create2: start_implement
+// Put runs the put action.
+func (c *EventController) Put(ctx *app.PutEventContext) error {
+	// EventController_Put: start_implement
 
 	// Put your logic here
 
-	// EventController_Create2: end_implement
+	// EventController_Put: end_implement
 	res := &app.AntEventCreResult{}
 	return ctx.OK(res)
 }

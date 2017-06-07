@@ -2,6 +2,17 @@ basePath: /v1
 consumes:
 - application/json
 definitions:
+  AntEventCreResult:
+    description: 创建事件成功返回 (default view)
+    example:
+      eid: At architecto consectetur voluptas quod ut id.
+    properties:
+      eid:
+        description: 事件唯一标识
+        example: At architecto consectetur voluptas quod ut id.
+        type: string
+    title: 'Mediatype identifier: application/vnd.ant.event.cre.result; view=default'
+    type: object
   PostEventPayload:
     example:
       action: Quibusdam praesentium ullam.
@@ -38,37 +49,31 @@ definitions:
   PutEventPayload:
     example:
       action: Consequatur vitae ut.
-      eid: Natus ut quidem pariatur voluptatem perferendis corrupti.
-      etype: Quia quisquam in.
-      from: Quia aut non eius perspiciatis consequuntur.
-      occtime: Voluptatem quibusdam dolores et excepturi.
-      params: 7.9144667e+18
+      etype: Natus ut quidem pariatur voluptatem perferendis corrupti.
+      from: Quia quisquam in.
+      occtime: Quia aut non eius perspiciatis consequuntur.
+      params: false
     properties:
       action:
         description: 事件行为
         example: Consequatur vitae ut.
         type: string
-      eid:
-        description: 事件唯一标识
-        example: Natus ut quidem pariatur voluptatem perferendis corrupti.
-        type: string
       etype:
         description: 事件类型
-        example: Quia quisquam in.
+        example: Natus ut quidem pariatur voluptatem perferendis corrupti.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Quia aut non eius perspiciatis consequuntur.
+        example: Quia quisquam in.
         type: string
       occtime:
         description: 事件发生时间
-        example: Voluptatem quibusdam dolores et excepturi.
+        example: Quia aut non eius perspiciatis consequuntur.
         type: string
       params:
         description: 事件发生时间
-        example: 7.9144667e+18
+        example: false
     required:
-    - eid
     - etype
     - action
     - from
@@ -90,26 +95,40 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/PostEventPayload'
+      produces:
+      - application/vnd.ant.event.cre.result
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/AntEventCreResult'
       schemes:
       - http
       summary: post event
       tags:
       - event
+  /event/{eid}:
     put:
       description: 创建一个事件
       operationId: event#put
       parameters:
+      - description: 事件唯一标识
+        in: path
+        name: eid
+        required: true
+        type: string
       - in: body
         name: payload
         required: true
         schema:
           $ref: '#/definitions/PutEventPayload'
+      produces:
+      - application/vnd.ant.event.cre.result
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/AntEventCreResult'
         "404":
           description: Not Found
       schemes:
@@ -119,6 +138,9 @@ paths:
       - event
 produces:
 - application/json
+responses:
+  NotFound:
+    description: Not Found
 schemes:
 - http
 swagger: "2.0"

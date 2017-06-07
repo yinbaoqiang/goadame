@@ -72,8 +72,6 @@ func (c *Client) NewPostEventRequest(ctx context.Context, path string, payload *
 type PutEventPayload struct {
 	// 事件行为
 	Action string `form:"action" json:"action" xml:"action"`
-	// 事件唯一标识
-	Eid string `form:"eid" json:"eid" xml:"eid"`
 	// 事件类型
 	Etype string `form:"etype" json:"etype" xml:"etype"`
 	// 产生事件的服务器标识
@@ -85,9 +83,10 @@ type PutEventPayload struct {
 }
 
 // PutEventPath computes a request path to the put action of event.
-func PutEventPath() string {
+func PutEventPath(eid string) string {
+	param0 := eid
 
-	return fmt.Sprintf("/v1/event")
+	return fmt.Sprintf("/v1/event/%s", param0)
 }
 
 // 创建一个事件
