@@ -42,6 +42,6 @@ var _ = apidsl.Resource("regevent", func() { // Resources group related API endp
 			apidsl.Param("page", design.Integer, "事件类型")
 			apidsl.Param("count", design.Integer, "事件行为,不设置该项则注册监听所有行为变化")
 		})
-		apidsl.Response(design.OK, apidsl.ArrayOf(RegListMedia))
+		apidsl.Response(design.OK, RegListMedia)
 	})
 })
