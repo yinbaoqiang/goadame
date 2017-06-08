@@ -44,4 +44,30 @@ var _ = apidsl.Resource("regevent", func() { // Resources group related API endp
 		})
 		apidsl.Response(design.OK, RegListMedia)
 	})
+	apidsl.Action("hislist", func() { // Actions define a single API endpoint together
+		apidsl.Description("事件发生历史,可以") // with its path, parameters (both path
+		apidsl.Routing(apidsl.GET(""))  // parameters and querystring values) and payload
+		apidsl.Params(func() {
+			apidsl.Param("page", design.Integer, "查询分页", func() {
+				apidsl.Minimum(1)
+			})
+			apidsl.Param("count", design.Integer, "分页数量", func() {
+				apidsl.Minimum(5)
+			})
+			apidsl.Param("etype", design.String, "事件类型")
+			apidsl.Param("action", design.String, "行为")
+			apidsl.Param("from", design.String, "来源")
+		})
+		apidsl.Response(design.OK, RegListMedia)
+	})
+
+	apidsl.Action("eventback", func() { // Actions define a single API endpoint together
+		apidsl.Description("事件回调执行情况")           // with its path, parameters (both path
+		apidsl.Routing(apidsl.GET("/back/:eid")) // parameters and querystring values) and payload
+		apidsl.Params(func() {
+			apidsl.Param("eid", design.Integer, "事件标识")
+			apidsl.Param("list", apidsl.ArrayOf(EventBackInfoMedia), "事件监听回调执行情况列表")
+		})
+		apidsl.Response(design.OK, RegListMedia)
+	})
 })

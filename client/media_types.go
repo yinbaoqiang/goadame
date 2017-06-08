@@ -107,9 +107,26 @@ type AntRegResult struct {
 	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
 }
 
+// 注册事件监听成功 (failed view)
+//
+// Identifier: application/vnd.ant.reg.result+json; view=failed
+type AntRegResultFailed struct {
+	// 如果ok=false,失败原因
+	Msg *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
+	// 成功标识
+	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+}
+
 // DecodeAntRegResult decodes the AntRegResult instance encoded in resp body.
 func (c *Client) DecodeAntRegResult(resp *http.Response) (*AntRegResult, error) {
 	var decoded AntRegResult
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// DecodeAntRegResultFailed decodes the AntRegResultFailed instance encoded in resp body.
+func (c *Client) DecodeAntRegResultFailed(resp *http.Response) (*AntRegResultFailed, error) {
+	var decoded AntRegResultFailed
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }

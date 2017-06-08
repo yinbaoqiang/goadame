@@ -84,10 +84,10 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "action": "Et quia quia cum voluptate.",
-   "bakurl": "Ut quam fugiat aliquid.",
-   "etype": "Consequatur recusandae repellendus rerum dolorem libero sunt.",
-   "from": "Nemo sit aut neque."
+   "action": "Quam fugiat aliquid repudiandae.",
+   "bakurl": "Recusandae repellendus rerum dolorem libero sunt.",
+   "etype": "Nemo sit aut neque.",
+   "from": "Minus omnis aliquid optio."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -122,11 +122,11 @@ Payload example:
 Payload example:
 
 {
-   "action": "Quod quia aut non eius.",
-   "etype": "Consequuntur voluptas.",
-   "from": "Quibusdam dolores et excepturi asperiores porro ipsum.",
-   "occtime": "Facere aspernatur natus modi quia.",
-   "params": false
+   "action": "Consequuntur voluptas.",
+   "etype": "Quibusdam dolores et excepturi asperiores porro ipsum.",
+   "from": "Facere aspernatur natus modi quia.",
+   "occtime": "Tenetur corporis sequi illo dolor deserunt ipsam.",
+   "params": true
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -147,11 +147,11 @@ Payload example:
 Payload example:
 
 {
-   "action": "Sequi illo dolor deserunt ipsam.",
-   "etype": "Enim minima qui fugit rerum ab itaque.",
-   "from": "Sit eius ad voluptas suscipit sed.",
-   "occtime": "Laudantium illo non.",
-   "params": "a14e0987-0492-4ddb-8cd7-15ef7e7eff22"
+   "action": "Qui fugit rerum ab itaque.",
+   "etype": "Sit eius ad voluptas suscipit sed.",
+   "from": "Laudantium illo non.",
+   "occtime": "Earum et quia quia cum voluptate.",
+   "params": "daea4138-d4bc-47c1-9b7f-c944271aea9c"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}

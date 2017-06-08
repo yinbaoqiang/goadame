@@ -331,6 +331,12 @@ func (ctx *AddRegeventContext) OK(r *AntRegResult) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// OKFailed sends a HTTP response with status code 200.
+func (ctx *AddRegeventContext) OKFailed(r *AntRegResultFailed) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.result+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // ListRegeventContext provides the regevent list action context.
 type ListRegeventContext struct {
 	context.Context
@@ -375,8 +381,8 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListRegeventContext) OK(r []*AntRegList) error {
-	ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+func (ctx *ListRegeventContext) OK(r *AntRegList) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.list+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 

@@ -85,6 +85,16 @@ type AntRegResult struct {
 	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
 }
 
+// 注册事件监听成功 (failed view)
+//
+// Identifier: application/vnd.ant.reg.result+json; view=failed
+type AntRegResultFailed struct {
+	// 如果ok=false,失败原因
+	Msg *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
+	// 成功标识
+	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+}
+
 // 创建事件成功返回 (default view)
 //
 // Identifier: application/vnd.ant.result+json; view=default

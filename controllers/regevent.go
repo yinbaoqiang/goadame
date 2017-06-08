@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"github.com/goadesign/goa"
@@ -33,7 +33,8 @@ func (c *RegeventController) List(ctx *app.ListRegeventContext) error {
 	// Put your logic here
 
 	// RegeventController_List: end_implement
-	return nil
+	res := &app.AntRegList{}
+	return ctx.OK(res)
 }
 
 // Remove runs the remove action.

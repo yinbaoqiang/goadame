@@ -22,7 +22,7 @@ func (c *EventController) Post(ctx *app.PostEventContext) error {
 	// Put your logic here
 
 	// EventController_Post: end_implement
-	res := &app.AntEventCreResult{}
+	res := &app.AntResult{}
 	return ctx.OK(res)
 }
 
@@ -33,6 +33,6 @@ func (c *EventController) Put(ctx *app.PutEventContext) error {
 	// Put your logic here
 
 	// EventController_Put: end_implement
-	res := &app.AntEventCreResult{}
+	res := &app.AntResult{}
 	return ctx.OK(res)
 }
