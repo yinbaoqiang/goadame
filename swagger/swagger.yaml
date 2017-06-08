@@ -4,26 +4,26 @@ consumes:
 definitions:
   AddRegeventPayload:
     example:
-      action: Quam fugiat aliquid repudiandae.
-      bakurl: Recusandae repellendus rerum dolorem libero sunt.
-      etype: Nemo sit aut neque.
-      from: Minus omnis aliquid optio.
+      action: Vero et illum ducimus.
+      bakurl: Quia perferendis nemo eligendi.
+      etype: Molestiae voluptates sed.
+      from: Labore ut.
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Quam fugiat aliquid repudiandae.
+        example: Vero et illum ducimus.
         type: string
       bakurl:
         description: 回调路径
-        example: Recusandae repellendus rerum dolorem libero sunt.
+        example: Quia perferendis nemo eligendi.
         type: string
       etype:
         description: 事件类型
-        example: Nemo sit aut neque.
+        example: Molestiae voluptates sed.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Minus omnis aliquid optio.
+        example: Labore ut.
         type: string
     required:
     - etype
@@ -34,79 +34,89 @@ definitions:
   AntReg:
     description: 事件监听信息 (default view)
     example:
-      action: Quibusdam praesentium ullam.
-      bakurl: Quia architecto.
-      etype: Soluta voluptatum neque possimus alias.
-      from: Minima eum modi et corporis corporis.
-      rid: Reprehenderit asperiores consequatur vitae ut.
+      action: Minima qui fugit rerum ab itaque nisi.
+      backurl: Eius ad.
+      etype: Suscipit sed ut laudantium illo non.
+      from: Earum et quia quia cum voluptate.
+      rid: Ut quam fugiat aliquid.
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Quibusdam praesentium ullam.
+        example: Minima qui fugit rerum ab itaque nisi.
         type: string
-      bakurl:
+      backurl:
         description: 回调路径
-        example: Quia architecto.
+        example: Eius ad.
         type: string
       etype:
         description: 事件类型
-        example: Soluta voluptatum neque possimus alias.
+        example: Suscipit sed ut laudantium illo non.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Minima eum modi et corporis corporis.
+        example: Earum et quia quia cum voluptate.
         type: string
       rid:
         description: 注册事件监听唯一标识
-        example: Reprehenderit asperiores consequatur vitae ut.
+        example: Ut quam fugiat aliquid.
         type: string
     required:
     - rid
     - etype
-    - bakurl
+    - backurl
     - from
-    title: 'Mediatype identifier: application/vnd.ant.reg+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.reg+json; view=default'
     type: object
   AntRegList:
     description: 事件监听列表 (default view)
     example:
       list:
-      - action: Quibusdam praesentium ullam.
-        bakurl: Quia architecto.
-        etype: Soluta voluptatum neque possimus alias.
-        from: Minima eum modi et corporis corporis.
-        rid: Reprehenderit asperiores consequatur vitae ut.
-      - action: Quibusdam praesentium ullam.
-        bakurl: Quia architecto.
-        etype: Soluta voluptatum neque possimus alias.
-        from: Minima eum modi et corporis corporis.
-        rid: Reprehenderit asperiores consequatur vitae ut.
-      total: 8.520824e+17
+      - action: Minima qui fugit rerum ab itaque nisi.
+        backurl: Eius ad.
+        etype: Suscipit sed ut laudantium illo non.
+        from: Earum et quia quia cum voluptate.
+        rid: Ut quam fugiat aliquid.
+      - action: Minima qui fugit rerum ab itaque nisi.
+        backurl: Eius ad.
+        etype: Suscipit sed ut laudantium illo non.
+        from: Earum et quia quia cum voluptate.
+        rid: Ut quam fugiat aliquid.
+      - action: Minima qui fugit rerum ab itaque nisi.
+        backurl: Eius ad.
+        etype: Suscipit sed ut laudantium illo non.
+        from: Earum et quia quia cum voluptate.
+        rid: Ut quam fugiat aliquid.
+      total: 4.8583125e+18
     properties:
       list:
         description: 事件类型
         example:
-        - action: Quibusdam praesentium ullam.
-          bakurl: Quia architecto.
-          etype: Soluta voluptatum neque possimus alias.
-          from: Minima eum modi et corporis corporis.
-          rid: Reprehenderit asperiores consequatur vitae ut.
-        - action: Quibusdam praesentium ullam.
-          bakurl: Quia architecto.
-          etype: Soluta voluptatum neque possimus alias.
-          from: Minima eum modi et corporis corporis.
-          rid: Reprehenderit asperiores consequatur vitae ut.
+        - action: Minima qui fugit rerum ab itaque nisi.
+          backurl: Eius ad.
+          etype: Suscipit sed ut laudantium illo non.
+          from: Earum et quia quia cum voluptate.
+          rid: Ut quam fugiat aliquid.
+        - action: Minima qui fugit rerum ab itaque nisi.
+          backurl: Eius ad.
+          etype: Suscipit sed ut laudantium illo non.
+          from: Earum et quia quia cum voluptate.
+          rid: Ut quam fugiat aliquid.
+        - action: Minima qui fugit rerum ab itaque nisi.
+          backurl: Eius ad.
+          etype: Suscipit sed ut laudantium illo non.
+          from: Earum et quia quia cum voluptate.
+          rid: Ut quam fugiat aliquid.
         items:
           $ref: '#/definitions/AntReg'
         type: array
       total:
         description: 总数量
-        example: 8.520824e+17
+        example: 4.8583125e+18
         format: int64
         type: integer
     required:
     - total
-    title: 'Mediatype identifier: application/vnd.ant.reg.list+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.reg.list+json; view=default'
     type: object
   AntRegResult:
     description: 注册事件监听成功 (default view)
@@ -117,42 +127,42 @@ definitions:
         description: 成功标识
         example: true
         type: boolean
-    title: 'Mediatype identifier: application/vnd.ant.reg.result+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.reg.result+json; view=default'
     type: object
   AntResult:
     description: 创建事件成功返回 (default view)
     example:
-      eid: Quod quia aut non eius.
+      eid: Fuga nemo sit aut neque qui.
     properties:
       eid:
         description: 事件唯一标识
-        example: Quod quia aut non eius.
+        example: Fuga nemo sit aut neque qui.
         type: string
-    title: 'Mediatype identifier: application/vnd.ant.result+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.result+json; view=default'
     type: object
   PostEventPayload:
     example:
-      action: Consequuntur voluptas.
-      etype: Quibusdam dolores et excepturi asperiores porro ipsum.
-      from: Facere aspernatur natus modi quia.
-      occtime: Tenetur corporis sequi illo dolor deserunt ipsam.
+      action: Omnis aliquid optio odio.
+      etype: Molestias quam ut voluptas optio.
+      from: Molestias officiis ut non et.
+      occtime: Officia aperiam est consequatur.
       params: true
     properties:
       action:
         description: 事件行为
-        example: Consequuntur voluptas.
+        example: Omnis aliquid optio odio.
         type: string
       etype:
         description: 事件类型
-        example: Quibusdam dolores et excepturi asperiores porro ipsum.
+        example: Molestias quam ut voluptas optio.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Facere aspernatur natus modi quia.
+        example: Molestias officiis ut non et.
         type: string
       occtime:
         description: 事件发生时间
-        example: Tenetur corporis sequi illo dolor deserunt ipsam.
+        example: Officia aperiam est consequatur.
         type: string
       params:
         description: 事件发生时间
@@ -165,31 +175,31 @@ definitions:
     type: object
   PutEventPayload:
     example:
-      action: Qui fugit rerum ab itaque.
-      etype: Sit eius ad voluptas suscipit sed.
-      from: Laudantium illo non.
-      occtime: Earum et quia quia cum voluptate.
-      params: 1332dacb-ae10-4960-a446-41f85d722f0e
+      action: Dolorem quis dolorem perferendis saepe neque.
+      etype: Id tenetur ea sapiente eum commodi.
+      from: Est voluptas dolorum qui dolore unde.
+      occtime: Rem tempore.
+      params: 1977-05-08T18:42:53+08:00
     properties:
       action:
         description: 事件行为
-        example: Qui fugit rerum ab itaque.
+        example: Dolorem quis dolorem perferendis saepe neque.
         type: string
       etype:
         description: 事件类型
-        example: Sit eius ad voluptas suscipit sed.
+        example: Id tenetur ea sapiente eum commodi.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Laudantium illo non.
+        example: Est voluptas dolorum qui dolore unde.
         type: string
       occtime:
         description: 事件发生时间
-        example: Earum et quia quia cum voluptate.
+        example: Rem tempore.
         type: string
       params:
         description: 事件发生时间
-        example: 1332dacb-ae10-4960-a446-41f85d722f0e
+        example: 1977-05-08T18:42:53+08:00
     required:
     - etype
     - action
@@ -218,7 +228,7 @@ paths:
         required: false
         type: integer
       produces:
-      - application/vnd.ant.reg.list+json
+      - vnd.ant.reg.list+json
       responses:
         "200":
           description: OK
@@ -240,7 +250,7 @@ paths:
         required: true
         type: string
       produces:
-      - application/vnd.ant.result+json
+      - vnd.ant.result+json
       responses:
         "200":
           description: OK
@@ -251,6 +261,70 @@ paths:
       summary: remove regevent
       tags:
       - regevent
+  /admin/event/analysis:
+    get:
+      description: 事件发生历史,可以
+      operationId: analysis#list
+      parameters:
+      - description: 行为
+        in: query
+        name: action
+        required: false
+        type: string
+      - description: 分页数量
+        in: query
+        minimum: 5
+        name: count
+        required: false
+        type: integer
+      - description: 事件类型
+        in: query
+        name: etype
+        required: false
+        type: string
+      - description: 来源
+        in: query
+        name: from
+        required: false
+        type: string
+      - description: 查询分页
+        in: query
+        minimum: 1
+        name: page
+        required: false
+        type: integer
+      produces:
+      - vnd.ant.reg.list+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AntRegList'
+      schemes:
+      - http
+      summary: list analysis
+      tags:
+      - analysis
+  /admin/event/analysis/back/{eid}:
+    get:
+      description: 事件回调执行情况
+      operationId: analysis#back
+      parameters:
+      - description: 事件标识
+        in: path
+        name: eid
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: back analysis
+      tags:
+      - analysis
   /admin/event/reg:
     post:
       description: 注册事件监听
@@ -262,7 +336,7 @@ paths:
         schema:
           $ref: '#/definitions/AddRegeventPayload'
       produces:
-      - application/vnd.ant.reg.result+json
+      - vnd.ant.reg.result+json
       responses:
         "200":
           description: OK
@@ -284,7 +358,7 @@ paths:
         schema:
           $ref: '#/definitions/PostEventPayload'
       produces:
-      - application/vnd.ant.result+json
+      - vnd.ant.result+json
       responses:
         "200":
           description: OK
@@ -311,7 +385,7 @@ paths:
         schema:
           $ref: '#/definitions/PutEventPayload'
       produces:
-      - application/vnd.ant.result+json
+      - vnd.ant.result+json
       responses:
         "200":
           description: OK

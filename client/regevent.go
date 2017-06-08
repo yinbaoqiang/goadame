@@ -91,12 +91,12 @@ func (c *Client) NewListRegeventRequest(ctx context.Context, path string, count 
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if count != nil {
-		tmp6 := strconv.Itoa(*count)
-		values.Set("count", tmp6)
+		tmp10 := strconv.Itoa(*count)
+		values.Set("count", tmp10)
 	}
 	if page != nil {
-		tmp7 := strconv.Itoa(*page)
-		values.Set("page", tmp7)
+		tmp11 := strconv.Itoa(*page)
+		values.Set("page", tmp11)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)

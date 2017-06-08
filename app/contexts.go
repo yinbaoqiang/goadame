@@ -17,6 +17,118 @@ import (
 	"strconv"
 )
 
+// BackAnalysisContext provides the analysis back action context.
+type BackAnalysisContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Eid int
+}
+
+// NewBackAnalysisContext parses the incoming request URL and body, performs validations and creates the
+// context used by the analysis controller back action.
+func NewBackAnalysisContext(ctx context.Context, r *http.Request, service *goa.Service) (*BackAnalysisContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := BackAnalysisContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramEid := req.Params["eid"]
+	if len(paramEid) > 0 {
+		rawEid := paramEid[0]
+		if eid, err2 := strconv.Atoi(rawEid); err2 == nil {
+			rctx.Eid = eid
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("eid", rawEid, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *BackAnalysisContext) OK(r []*AntEvenBack) error {
+	ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// ListAnalysisContext provides the analysis list action context.
+type ListAnalysisContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Action *string
+	Count  *int
+	Etype  *string
+	From   *string
+	Page   *int
+}
+
+// NewListAnalysisContext parses the incoming request URL and body, performs validations and creates the
+// context used by the analysis controller list action.
+func NewListAnalysisContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListAnalysisContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListAnalysisContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramAction := req.Params["action"]
+	if len(paramAction) > 0 {
+		rawAction := paramAction[0]
+		rctx.Action = &rawAction
+	}
+	paramCount := req.Params["count"]
+	if len(paramCount) > 0 {
+		rawCount := paramCount[0]
+		if count, err2 := strconv.Atoi(rawCount); err2 == nil {
+			tmp3 := count
+			tmp2 := &tmp3
+			rctx.Count = tmp2
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("count", rawCount, "integer"))
+		}
+		if rctx.Count != nil {
+			if *rctx.Count < 5 {
+				err = goa.MergeErrors(err, goa.InvalidRangeError(`count`, *rctx.Count, 5, true))
+			}
+		}
+	}
+	paramEtype := req.Params["etype"]
+	if len(paramEtype) > 0 {
+		rawEtype := paramEtype[0]
+		rctx.Etype = &rawEtype
+	}
+	paramFrom := req.Params["from"]
+	if len(paramFrom) > 0 {
+		rawFrom := paramFrom[0]
+		rctx.From = &rawFrom
+	}
+	paramPage := req.Params["page"]
+	if len(paramPage) > 0 {
+		rawPage := paramPage[0]
+		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
+			tmp5 := page
+			tmp4 := &tmp5
+			rctx.Page = tmp4
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
+		}
+		if rctx.Page != nil {
+			if *rctx.Page < 1 {
+				err = goa.MergeErrors(err, goa.InvalidRangeError(`page`, *rctx.Page, 1, true))
+			}
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListAnalysisContext) OK(r *AntRegList) error {
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.list+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // PostEventContext provides the event post action context.
 type PostEventContext struct {
 	context.Context
@@ -116,7 +228,7 @@ func (payload *PostEventPayload) Validate() (err error) {
 
 // OK sends a HTTP response with status code 200.
 func (ctx *PostEventContext) OK(r *AntResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -225,7 +337,7 @@ func (payload *PutEventPayload) Validate() (err error) {
 
 // OK sends a HTTP response with status code 200.
 func (ctx *PutEventContext) OK(r *AntResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -327,13 +439,13 @@ func (payload *AddRegeventPayload) Validate() (err error) {
 
 // OK sends a HTTP response with status code 200.
 func (ctx *AddRegeventContext) OK(r *AntRegResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.result+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // OKFailed sends a HTTP response with status code 200.
 func (ctx *AddRegeventContext) OKFailed(r *AntRegResultFailed) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.result+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -359,9 +471,9 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramCount) > 0 {
 		rawCount := paramCount[0]
 		if count, err2 := strconv.Atoi(rawCount); err2 == nil {
-			tmp2 := count
-			tmp1 := &tmp2
-			rctx.Count = tmp1
+			tmp7 := count
+			tmp6 := &tmp7
+			rctx.Count = tmp6
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("count", rawCount, "integer"))
 		}
@@ -370,9 +482,9 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramPage) > 0 {
 		rawPage := paramPage[0]
 		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
-			tmp4 := page
-			tmp3 := &tmp4
-			rctx.Page = tmp3
+			tmp9 := page
+			tmp8 := &tmp9
+			rctx.Page = tmp8
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
 		}
@@ -382,7 +494,7 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 
 // OK sends a HTTP response with status code 200.
 func (ctx *ListRegeventContext) OK(r *AntRegList) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.reg.list+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.list+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -413,6 +525,6 @@ func NewRemoveRegeventContext(ctx context.Context, r *http.Request, service *goa
 
 // OK sends a HTTP response with status code 200.
 func (ctx *RemoveRegeventContext) OK(r *AntResult) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.ant.result+json")
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.result+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

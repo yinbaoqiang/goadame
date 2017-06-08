@@ -88,7 +88,7 @@ var RegListMedia = apidsl.MediaType("vnd.ant.reg.list+json", func() {
 })
 
 // EventHisInfoMedia 事件信息
-var EventHisInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
+var EventHisInfoMedia = apidsl.MediaType("vnd.ant.history.info+json", func() {
 	apidsl.Description("事件监听信息")
 
 	apidsl.Attributes(func() { // (shape of the request body).
@@ -101,17 +101,15 @@ var EventHisInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
 
 		apidsl.Required("eid")
 		apidsl.Required("etype")
-		apidsl.Required("backurl")
 		apidsl.Required("from")
 		apidsl.Required("occtime")
 
 	})
 	apidsl.View("default", func() { // View defines a rendering of the media type.
-		apidsl.Attribute("rid")     // Media types may have multiple views and must
-		apidsl.Attribute("etype")   // Media types may have multiple views and must
-		apidsl.Attribute("action")  // Media types may have multiple views and must
-		apidsl.Attribute("from")    // Media types may have multiple views and must
-		apidsl.Attribute("backurl") // Media types may have multiple views and must
+		apidsl.Attribute("eid")    // Media types may have multiple views and must
+		apidsl.Attribute("etype")  // Media types may have multiple views and must
+		apidsl.Attribute("action") // Media types may have multiple views and must
+		apidsl.Attribute("from")   // Media types may have multiple views and must
 	})
 })
 

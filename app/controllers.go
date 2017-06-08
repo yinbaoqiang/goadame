@@ -27,6 +27,49 @@ func initService(service *goa.Service) {
 	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
+// AnalysisController is the controller interface for the Analysis actions.
+type AnalysisController interface {
+	goa.Muxer
+	Back(*BackAnalysisContext) error
+	List(*ListAnalysisContext) error
+}
+
+// MountAnalysisController "mounts" a Analysis resource controller on the given service.
+func MountAnalysisController(service *goa.Service, ctrl AnalysisController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewBackAnalysisContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Back(rctx)
+	}
+	service.Mux.Handle("GET", "/v1/admin/event/analysis/back/:eid", ctrl.MuxHandler("back", h, nil))
+	service.LogInfo("mount", "ctrl", "Analysis", "action", "Back", "route", "GET /v1/admin/event/analysis/back/:eid")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListAnalysisContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.List(rctx)
+	}
+	service.Mux.Handle("GET", "/v1/admin/event/analysis", ctrl.MuxHandler("list", h, nil))
+	service.LogInfo("mount", "ctrl", "Analysis", "action", "List", "route", "GET /v1/admin/event/analysis")
+}
+
 // EventController is the controller interface for the Event actions.
 type EventController interface {
 	goa.Muxer

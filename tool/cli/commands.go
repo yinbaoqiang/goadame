@@ -28,6 +28,28 @@ import (
 )
 
 type (
+	// BackAnalysisCommand is the command line data structure for the back action of analysis
+	BackAnalysisCommand struct {
+		// 事件标识
+		Eid         int
+		PrettyPrint bool
+	}
+
+	// ListAnalysisCommand is the command line data structure for the list action of analysis
+	ListAnalysisCommand struct {
+		// 行为
+		Action string
+		// 分页数量
+		Count int
+		// 事件类型
+		Etype string
+		// 来源
+		From string
+		// 查询分页
+		Page        int
+		PrettyPrint bool
+	}
+
 	// PostEventCommand is the command line data structure for the post action of event
 	PostEventCommand struct {
 		Payload     string
@@ -84,10 +106,10 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "action": "Quam fugiat aliquid repudiandae.",
-   "bakurl": "Recusandae repellendus rerum dolorem libero sunt.",
-   "etype": "Nemo sit aut neque.",
-   "from": "Minus omnis aliquid optio."
+   "action": "Vero et illum ducimus.",
+   "bakurl": "Quia perferendis nemo eligendi.",
+   "etype": "Molestiae voluptates sed.",
+   "from": "Labore ut."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -96,12 +118,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "list",
-		Short: `注册事件监听`,
+		Use:   "back",
+		Short: `事件回调执行情况`,
 	}
-	tmp2 := new(ListRegeventCommand)
+	tmp2 := new(BackAnalysisCommand)
 	sub = &cobra.Command{
-		Use:   `regevent ["/v1/admin/event"]`,
+		Use:   `analysis ["/v1/admin/event/analysis/back/EID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -110,10 +132,33 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "list",
+		Short: `list action`,
+	}
+	tmp3 := new(ListAnalysisCommand)
+	sub = &cobra.Command{
+		Use:   `analysis ["/v1/admin/event/analysis"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+	}
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp4 := new(ListRegeventCommand)
+	sub = &cobra.Command{
+		Use:   `regevent ["/v1/admin/event"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "post",
 		Short: `创建一个事件`,
 	}
-	tmp3 := new(PostEventCommand)
+	tmp5 := new(PostEventCommand)
 	sub = &cobra.Command{
 		Use:   `event ["/v1/event"]`,
 		Short: ``,
@@ -122,23 +167,23 @@ Payload example:
 Payload example:
 
 {
-   "action": "Consequuntur voluptas.",
-   "etype": "Quibusdam dolores et excepturi asperiores porro ipsum.",
-   "from": "Facere aspernatur natus modi quia.",
-   "occtime": "Tenetur corporis sequi illo dolor deserunt ipsam.",
+   "action": "Omnis aliquid optio odio.",
+   "etype": "Molestias quam ut voluptas optio.",
+   "from": "Molestias officiis ut non et.",
+   "occtime": "Officia aperiam est consequatur.",
    "params": true
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
-	tmp3.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "put",
 		Short: `创建一个事件`,
 	}
-	tmp4 := new(PutEventCommand)
+	tmp6 := new(PutEventCommand)
 	sub = &cobra.Command{
 		Use:   `event ["/v1/event/EID"]`,
 		Short: ``,
@@ -147,30 +192,30 @@ Payload example:
 Payload example:
 
 {
-   "action": "Qui fugit rerum ab itaque.",
-   "etype": "Sit eius ad voluptas suscipit sed.",
-   "from": "Laudantium illo non.",
-   "occtime": "Earum et quia quia cum voluptate.",
-   "params": "daea4138-d4bc-47c1-9b7f-c944271aea9c"
+   "action": "Dolorem quis dolorem perferendis saepe neque.",
+   "etype": "Id tenetur ea sapiente eum commodi.",
+   "from": "Est voluptas dolorum qui dolore unde.",
+   "occtime": "Rem tempore.",
+   "params": "1977-05-08T18:42:53+08:00"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
-	tmp4.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "remove",
 		Short: `取消事件监听`,
 	}
-	tmp5 := new(RemoveRegeventCommand)
+	tmp7 := new(RemoveRegeventCommand)
 	sub = &cobra.Command{
 		Use:   `regevent ["/v1/admin/event/RID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
-	tmp5.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp7.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp7.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -326,6 +371,66 @@ func boolArray(ins []string) ([]bool, error) {
 		vals = append(vals, *val)
 	}
 	return vals, nil
+}
+
+// Run makes the HTTP request corresponding to the BackAnalysisCommand command.
+func (cmd *BackAnalysisCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/v1/admin/event/analysis/back/%v", cmd.Eid)
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.BackAnalysis(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *BackAnalysisCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var eid int
+	cc.Flags().IntVar(&cmd.Eid, "eid", eid, `事件标识`)
+}
+
+// Run makes the HTTP request corresponding to the ListAnalysisCommand command.
+func (cmd *ListAnalysisCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/v1/admin/event/analysis"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ListAnalysis(ctx, path, stringFlagVal("action", cmd.Action), intFlagVal("count", cmd.Count), stringFlagVal("etype", cmd.Etype), stringFlagVal("from", cmd.From), intFlagVal("page", cmd.Page))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ListAnalysisCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var action string
+	cc.Flags().StringVar(&cmd.Action, "action", action, `行为`)
+	var count int
+	cc.Flags().IntVar(&cmd.Count, "count", count, `分页数量`)
+	var etype string
+	cc.Flags().StringVar(&cmd.Etype, "etype", etype, `事件类型`)
+	var from string
+	cc.Flags().StringVar(&cmd.From, "from", from, `来源`)
+	var page int
+	cc.Flags().IntVar(&cmd.Page, "page", page, `查询分页`)
 }
 
 // Run makes the HTTP request corresponding to the PostEventCommand command.
