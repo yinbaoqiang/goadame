@@ -22,7 +22,7 @@ type BackAnalysisContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Eid int
+	Eid string
 }
 
 // NewBackAnalysisContext parses the incoming request URL and body, performs validations and creates the
@@ -37,18 +37,14 @@ func NewBackAnalysisContext(ctx context.Context, r *http.Request, service *goa.S
 	paramEid := req.Params["eid"]
 	if len(paramEid) > 0 {
 		rawEid := paramEid[0]
-		if eid, err2 := strconv.Atoi(rawEid); err2 == nil {
-			rctx.Eid = eid
-		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("eid", rawEid, "integer"))
-		}
+		rctx.Eid = rawEid
 	}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *BackAnalysisContext) OK(r []*AntEvenBack) error {
-	ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+func (ctx *BackAnalysisContext) OK(r *AntEvenBack) error {
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.even.back+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -82,9 +78,9 @@ func NewListAnalysisContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramCount) > 0 {
 		rawCount := paramCount[0]
 		if count, err2 := strconv.Atoi(rawCount); err2 == nil {
-			tmp3 := count
-			tmp2 := &tmp3
-			rctx.Count = tmp2
+			tmp2 := count
+			tmp1 := &tmp2
+			rctx.Count = tmp1
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("count", rawCount, "integer"))
 		}
@@ -108,9 +104,9 @@ func NewListAnalysisContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramPage) > 0 {
 		rawPage := paramPage[0]
 		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
-			tmp5 := page
-			tmp4 := &tmp5
-			rctx.Page = tmp4
+			tmp4 := page
+			tmp3 := &tmp4
+			rctx.Page = tmp3
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
 		}
@@ -471,9 +467,9 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramCount) > 0 {
 		rawCount := paramCount[0]
 		if count, err2 := strconv.Atoi(rawCount); err2 == nil {
-			tmp7 := count
-			tmp6 := &tmp7
-			rctx.Count = tmp6
+			tmp6 := count
+			tmp5 := &tmp6
+			rctx.Count = tmp5
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("count", rawCount, "integer"))
 		}
@@ -482,9 +478,9 @@ func NewListRegeventContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramPage) > 0 {
 		rawPage := paramPage[0]
 		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
-			tmp9 := page
-			tmp8 := &tmp9
-			rctx.Page = tmp8
+			tmp8 := page
+			tmp7 := &tmp8
+			rctx.Page = tmp7
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
 		}

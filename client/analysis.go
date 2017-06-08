@@ -19,8 +19,8 @@ import (
 )
 
 // BackAnalysisPath computes a request path to the back action of analysis.
-func BackAnalysisPath(eid int) string {
-	param0 := strconv.Itoa(eid)
+func BackAnalysisPath(eid string) string {
+	param0 := eid
 
 	return fmt.Sprintf("/v1/admin/event/analysis/back/%s", param0)
 }

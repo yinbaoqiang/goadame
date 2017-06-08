@@ -30,8 +30,7 @@ import (
 type (
 	// BackAnalysisCommand is the command line data structure for the back action of analysis
 	BackAnalysisCommand struct {
-		// 事件标识
-		Eid         int
+		Eid         string
 		PrettyPrint bool
 	}
 
@@ -379,7 +378,7 @@ func (cmd *BackAnalysisCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/v1/admin/event/analysis/back/%v", cmd.Eid)
+		path = fmt.Sprintf("/v1/admin/event/analysis/back/%v", url.QueryEscape(cmd.Eid))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -395,8 +394,8 @@ func (cmd *BackAnalysisCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *BackAnalysisCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var eid int
-	cc.Flags().IntVar(&cmd.Eid, "eid", eid, `事件标识`)
+	var eid string
+	cc.Flags().StringVar(&cmd.Eid, "eid", eid, ``)
 }
 
 // Run makes the HTTP request corresponding to the ListAnalysisCommand command.

@@ -31,6 +31,57 @@ definitions:
     - from
     title: AddRegeventPayload
     type: object
+  AntEvenBack:
+    description: 事件监听信息 (default view)
+    example:
+      backurl: Quibusdam praesentium ullam.
+      eid: Quia architecto.
+      endTime: 1986-09-12T07:55:11+09:00
+      error: Voluptatum neque possimus alias doloremque minima.
+      execTime: 2.9602116e+18
+      startTime: 1977-07-22T17:16:32+08:00
+      success: true
+    properties:
+      backurl:
+        description: 回调连接
+        example: Quibusdam praesentium ullam.
+        type: string
+      eid:
+        description: 事件唯一标识
+        example: Quia architecto.
+        type: string
+      endTime:
+        description: 执行结束时间
+        example: 1986-09-12T07:55:11+09:00
+        format: date-time
+        type: string
+      error:
+        description: 执行错误时的错误信息
+        example: Voluptatum neque possimus alias doloremque minima.
+        type: string
+      execTime:
+        description: 执行时间,单位纳秒
+        example: 2.9602116e+18
+        format: int64
+        type: integer
+      startTime:
+        description: 开始执行时间
+        example: 1977-07-22T17:16:32+08:00
+        format: date-time
+        type: string
+      success:
+        description: 执行是否成功
+        example: true
+        type: boolean
+    required:
+    - eid
+    - backurl
+    - startTime
+    - endTime
+    - execTime
+    - success
+    title: 'Mediatype identifier: vnd.ant.even.back+json; view=default'
+    type: object
   AntReg:
     description: 事件监听信息 (default view)
     example:
@@ -310,16 +361,17 @@ paths:
       description: 事件回调执行情况
       operationId: analysis#back
       parameters:
-      - description: 事件标识
-        in: path
+      - in: path
         name: eid
         required: true
-        type: integer
+        type: string
       produces:
-      - text/plain
+      - vnd.ant.even.back+json
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/AntEvenBack'
       schemes:
       - http
       summary: back analysis
