@@ -43,8 +43,11 @@ func NewBackAnalysisContext(ctx context.Context, r *http.Request, service *goa.S
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *BackAnalysisContext) OK(r *AntEvenBack) error {
-	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.even.back+json")
+func (ctx *BackAnalysisContext) OK(r AntEvenBackCollection) error {
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.even.back+json; type=collection")
+	if r == nil {
+		r = AntEvenBackCollection{}
+	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 

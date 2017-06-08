@@ -29,7 +29,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func BackAnalysisOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.AnalysisController, eid string) (http.ResponseWriter, *app.AntEvenBack) {
+func BackAnalysisOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.AnalysisController, eid string) (http.ResponseWriter, app.AntEvenBackCollection) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -77,12 +77,12 @@ func BackAnalysisOK(t goatest.TInterface, ctx context.Context, service *goa.Serv
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.AntEvenBack
+	var mt app.AntEvenBackCollection
 	if resp != nil {
 		var ok bool
-		mt, ok = resp.(*app.AntEvenBack)
+		mt, ok = resp.(app.AntEvenBackCollection)
 		if !ok {
-			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEvenBack", resp)
+			t.Fatalf("invalid response media: got %+v, expected instance of app.AntEvenBackCollection", resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

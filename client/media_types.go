@@ -70,6 +70,30 @@ func (c *Client) DecodeAntEvenBack(resp *http.Response) (*AntEvenBack, error) {
 	return &decoded, err
 }
 
+// AntEvenBackCollection is the media type for an array of AntEvenBack (default view)
+//
+// Identifier: vnd.ant.even.back+json; type=collection; view=default
+type AntEvenBackCollection []*AntEvenBack
+
+// Validate validates the AntEvenBackCollection media type instance.
+func (mt AntEvenBackCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeAntEvenBackCollection decodes the AntEvenBackCollection instance encoded in resp body.
+func (c *Client) DecodeAntEvenBackCollection(resp *http.Response) (AntEvenBackCollection, error) {
+	var decoded AntEvenBackCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
+
 // 事件监听列表 (default view)
 //
 // Identifier: vnd.ant.event.history.list+json; view=default

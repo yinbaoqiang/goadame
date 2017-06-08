@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"github.com/goadesign/goa"
@@ -22,7 +22,8 @@ func (c *AnalysisController) Back(ctx *app.BackAnalysisContext) error {
 	// Put your logic here
 
 	// AnalysisController_Back: end_implement
-	return nil
+	res := app.AntEvenBackCollection{}
+	return ctx.OK(res)
 }
 
 // List runs the list action.

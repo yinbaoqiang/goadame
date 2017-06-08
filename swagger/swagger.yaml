@@ -82,10 +82,32 @@ definitions:
     - success
     title: 'Mediatype identifier: vnd.ant.even.back+json; view=default'
     type: object
+  AntEvenBackCollection:
+    description: AntEvenBackCollection is the media type for an array of AntEvenBack
+      (default view)
+    example:
+    - backurl: Quibusdam praesentium ullam.
+      eid: Quia architecto.
+      endTime: 1986-09-12T07:55:11+09:00
+      error: Voluptatum neque possimus alias doloremque minima.
+      execTime: 2.9602116e+18
+      startTime: 1977-07-22T17:16:32+08:00
+      success: true
+    - backurl: Quibusdam praesentium ullam.
+      eid: Quia architecto.
+      endTime: 1986-09-12T07:55:11+09:00
+      error: Voluptatum neque possimus alias doloremque minima.
+      execTime: 2.9602116e+18
+      startTime: 1977-07-22T17:16:32+08:00
+      success: true
+    items:
+      $ref: '#/definitions/AntEvenBack'
+    title: 'Mediatype identifier: vnd.ant.even.back+json; type=collection; view=default'
+    type: array
   AntReg:
     description: 事件监听信息 (default view)
     example:
-      action: Minima qui fugit rerum ab itaque nisi.
+      action: Ab itaque nisi.
       backurl: Eius ad.
       etype: Suscipit sed ut laudantium illo non.
       from: Earum et quia quia cum voluptate.
@@ -93,7 +115,7 @@ definitions:
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Minima qui fugit rerum ab itaque nisi.
+        example: Ab itaque nisi.
         type: string
       backurl:
         description: 回调路径
@@ -122,17 +144,17 @@ definitions:
     description: 事件监听列表 (default view)
     example:
       list:
-      - action: Minima qui fugit rerum ab itaque nisi.
+      - action: Ab itaque nisi.
         backurl: Eius ad.
         etype: Suscipit sed ut laudantium illo non.
         from: Earum et quia quia cum voluptate.
         rid: Ut quam fugiat aliquid.
-      - action: Minima qui fugit rerum ab itaque nisi.
+      - action: Ab itaque nisi.
         backurl: Eius ad.
         etype: Suscipit sed ut laudantium illo non.
         from: Earum et quia quia cum voluptate.
         rid: Ut quam fugiat aliquid.
-      - action: Minima qui fugit rerum ab itaque nisi.
+      - action: Ab itaque nisi.
         backurl: Eius ad.
         etype: Suscipit sed ut laudantium illo non.
         from: Earum et quia quia cum voluptate.
@@ -142,17 +164,17 @@ definitions:
       list:
         description: 事件类型
         example:
-        - action: Minima qui fugit rerum ab itaque nisi.
+        - action: Ab itaque nisi.
           backurl: Eius ad.
           etype: Suscipit sed ut laudantium illo non.
           from: Earum et quia quia cum voluptate.
           rid: Ut quam fugiat aliquid.
-        - action: Minima qui fugit rerum ab itaque nisi.
+        - action: Ab itaque nisi.
           backurl: Eius ad.
           etype: Suscipit sed ut laudantium illo non.
           from: Earum et quia quia cum voluptate.
           rid: Ut quam fugiat aliquid.
-        - action: Minima qui fugit rerum ab itaque nisi.
+        - action: Ab itaque nisi.
           backurl: Eius ad.
           etype: Suscipit sed ut laudantium illo non.
           from: Earum et quia quia cum voluptate.
@@ -366,12 +388,12 @@ paths:
         required: true
         type: string
       produces:
-      - vnd.ant.even.back+json
+      - vnd.ant.even.back+json; type=collection
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AntEvenBack'
+            $ref: '#/definitions/AntEvenBackCollection'
       schemes:
       - http
       summary: back analysis
