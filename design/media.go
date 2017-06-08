@@ -132,7 +132,7 @@ var EventHisListMedia = apidsl.MediaType("vnd.ant.event.history.list+json", func
 })
 
 // EventBackInfoMedia 事件监听回调执行情况
-var EventBackInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
+var EventBackInfoMedia = apidsl.MediaType("vnd.ant.even.back+json", func() {
 	apidsl.Description("事件监听信息")
 
 	apidsl.Attributes(func() { // (shape of the request body).
