@@ -72,6 +72,6 @@ var _ = apidsl.Resource("analysis", func() { // Resources group related API endp
 		apidsl.Params(func() {
 			apidsl.Param("eid", design.Integer, "事件标识")
 		})
-		apidsl.Response(design.OK, apidsl.ArrayOf(EventBackInfoMedia))
+		apidsl.Response(design.OK, EventBackInfoMedia)
 	})
 })
