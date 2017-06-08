@@ -55,10 +55,10 @@ var RegInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
 		apidsl.Attribute("etype", design.String, "事件类型")
 		apidsl.Attribute("action", design.String, "事件行为,不设置该项则注册监听所有行为变化")
 		apidsl.Attribute("from", design.String, "产生事件的服务器标识")
-		apidsl.Attribute("backurl", design.String, "回调路径")
+		apidsl.Attribute("hookurl", design.String, "钩子url")
 		apidsl.Required("rid")
 		apidsl.Required("etype")
-		apidsl.Required("backurl")
+		apidsl.Required("hookurl")
 		apidsl.Required("from")
 
 	})
@@ -67,7 +67,7 @@ var RegInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
 		apidsl.Attribute("etype")   // Media types may have multiple views and must
 		apidsl.Attribute("action")  // Media types may have multiple views and must
 		apidsl.Attribute("from")    // Media types may have multiple views and must
-		apidsl.Attribute("backurl") // Media types may have multiple views and must
+		apidsl.Attribute("hookurl") // Media types may have multiple views and must
 	})
 })
 
@@ -135,15 +135,16 @@ var EventBackInfoMedia = apidsl.MediaType("vnd.ant.even.back+json", func() {
 
 	apidsl.Attributes(func() { // (shape of the request body).
 		apidsl.Attribute("eid", design.String, "事件唯一标识")
-		apidsl.Attribute("backurl", design.String, "回调连接")
+		apidsl.Attribute("etype", design.String, "事件类型")
+		apidsl.Attribute("action", design.String, "事件行为,不设置该项则注册监听所有行为变化")
+		apidsl.Attribute("hookurl", design.String, "钩子url")
 		apidsl.Attribute("startTime", design.DateTime, "开始执行时间")
 		apidsl.Attribute("endTime", design.DateTime, "执行结束时间")
 		apidsl.Attribute("execTime", design.Integer, "执行时间,单位纳秒")
 		apidsl.Attribute("success", design.Boolean, "执行是否成功")
 		apidsl.Attribute("error", design.String, "执行错误时的错误信息")
-
 		apidsl.Required("eid")
-		apidsl.Required("backurl")
+		apidsl.Required("hookurl")
 		apidsl.Required("startTime")
 		apidsl.Required("endTime")
 		apidsl.Required("execTime")
@@ -152,7 +153,7 @@ var EventBackInfoMedia = apidsl.MediaType("vnd.ant.even.back+json", func() {
 	})
 	apidsl.View("default", func() { // View defines a rendering of the media type.
 		apidsl.Attribute("eid")       // Media types may have multiple views and must
-		apidsl.Attribute("backurl")   // Media types may have multiple views and must
+		apidsl.Attribute("hookurl")   // Media types may have multiple views and must
 		apidsl.Attribute("startTime") // Media types may have multiple views and must
 		apidsl.Attribute("endTime")   // Media types may have multiple views and must
 		apidsl.Attribute("execTime")  // Media types may have multiple views and must
