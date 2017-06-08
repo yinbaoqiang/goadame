@@ -24,7 +24,7 @@ var _ = apidsl.Resource("regevent", func() {
 		apidsl.Response(design.OK, RegResultMedia)
 	})
 	apidsl.Action("update", func() {
-		apidsl.Description("注册事件监听")
+		apidsl.Description("修改注册事件监听")
 		apidsl.Routing(apidsl.PUT("/:rid"))
 		apidsl.Payload(func() {
 			apidsl.Member("etype", design.String, "事件类型")
@@ -50,11 +50,17 @@ var _ = apidsl.Resource("regevent", func() {
 		apidsl.Response(design.OK, CreResultMedia)
 	})
 	apidsl.Action("list", func() {
-		apidsl.Description("注册事件监听")
+		apidsl.Description("获取注册事件监听列表")
 		apidsl.Routing(apidsl.GET(""))
 		apidsl.Params(func() {
-			apidsl.Param("page", design.Integer, "事件类型")
-			apidsl.Param("count", design.Integer, "事件行为,不设置该项则注册监听所有行为变化")
+			apidsl.Param("page", design.Integer, "分页", func() {
+				apidsl.Minimum(1)
+			})
+			apidsl.Param("count", design.Integer, "分页数量", func() {
+				apidsl.Minimum(5)
+			})
+			apidsl.Param("etype", design.String, "事件类型,不设置则查询所有事件类型")
+			apidsl.Param("action", design.String, "事件行为,不设置该项则查询所有行为")
 		})
 		apidsl.Response(design.OK, RegListMedia)
 	})
@@ -84,6 +90,7 @@ var _ = apidsl.Resource("analysis", func() { // 事件分析
 		apidsl.Description("事件回调执行情况")
 		apidsl.Routing(apidsl.GET("/hook/:eid"))
 		apidsl.Params(func() {
+			apidsl.Param("eid", design.String, "事件事件唯一标识")
 			apidsl.Param("action", design.Integer, "事件行为,指定该值则只返回该事件该行为的钩子调用情况,不指定,返回该事件所有行为调用情况")
 		})
 		apidsl.Response(design.OK, apidsl.CollectionOf("vnd.ant.even.back+json"))
