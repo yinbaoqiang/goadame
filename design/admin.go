@@ -67,11 +67,8 @@ var _ = apidsl.Resource("analysis", func() { // Resources group related API endp
 	})
 
 	apidsl.Action("back", func() { // Actions define a single API endpoint together
-		apidsl.Description("事件回调执行情况")           // with its path, parameters (both path
-		apidsl.Routing(apidsl.GET("/back/:eid")) // parameters and querystring values) and payload
-		apidsl.Params(func() {
-			apidsl.Param("eid", design.Integer, "事件标识")
-		})
+		apidsl.Description("事件回调执行情况") // with its path, parameters (both path
+		apidsl.Routing(apidsl.GET("/back/:eid"))
 		apidsl.Response(design.OK, EventBackInfoMedia)
 	})
 })
