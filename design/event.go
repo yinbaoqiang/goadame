@@ -9,6 +9,7 @@ var _ = apidsl.Resource("event", func() { // Resources group related API endpoin
 	apidsl.BasePath("/event") // together. They map to REST resources for REST
 
 	apidsl.Response(design.InternalServerError, ErrMedia)
+	apidsl.Response(design.BadRequest, ErrMedia)
 	apidsl.Action("put", func() { // Actions define a single API endpoint together
 		apidsl.Description("创建一个事件")        // with its path, parameters (both path
 		apidsl.Routing(apidsl.PUT("/:eid")) // parameters and querystring values) and payload

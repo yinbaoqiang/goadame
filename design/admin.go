@@ -8,6 +8,8 @@ import (
 var _ = apidsl.Resource("listen", func() {
 	apidsl.BasePath("/admin/listen")
 	apidsl.Response(design.InternalServerError, ErrMedia)
+
+	apidsl.Response(design.BadRequest, ErrMedia)
 	apidsl.Action("add", func() {
 		apidsl.Description("注册事件监听")
 		apidsl.Routing(apidsl.POST(""))
@@ -16,7 +18,9 @@ var _ = apidsl.Resource("listen", func() {
 			apidsl.Member("etype", design.String, "事件类型")
 			apidsl.Member("action", design.String, "事件行为,不设置该项则注册监听所有行为变化")
 			apidsl.Member("from", design.String, "注册事件监听的服务器标识")
-			apidsl.Member("hookurl", design.String, "钩子url")
+			apidsl.Member("hookurl", design.String, "钩子url", func() {
+				apidsl.Pattern("^https?://((\\w)+.?)+/(\\w+)$")
+			})
 			apidsl.Required("etype")
 			apidsl.Required("hookurl")
 			apidsl.Required("from")
@@ -70,6 +74,7 @@ var _ = apidsl.Resource("listen", func() {
 var _ = apidsl.Resource("analysis", func() { // 事件分析
 	apidsl.BasePath("/admin/event/analysis") // 基础URL
 
+	apidsl.Response(design.BadRequest, ErrMedia)
 	apidsl.Response(design.InternalServerError, ErrMedia)
 	apidsl.Action("list", func() {
 		apidsl.Description("事件发生历史")

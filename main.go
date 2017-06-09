@@ -26,8 +26,8 @@ func main() {
 	c2 := controllers.NewEventController(service)
 	app.MountEventController(service, c2)
 	// Mount "regevent" controller
-	c3 := controllers.NewRegeventController(service)
-	app.MountRegeventController(service, c3)
+	c3 := controllers.NewListenController(service)
+	app.MountListenController(service, c3)
 	c4 := controllers.NewPublicController(service)
 	app.MountPublicController(service, c4)
 	c5 := controllers.NewSwaggerController(service)
