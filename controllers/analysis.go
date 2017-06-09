@@ -15,13 +15,13 @@ func NewAnalysisController(service *goa.Service) *AnalysisController {
 	return &AnalysisController{Controller: service.NewController("AnalysisController")}
 }
 
-// Back runs the back action.
-func (c *AnalysisController) Back(ctx *app.BackAnalysisContext) error {
-	// AnalysisController_Back: start_implement
+// Hook runs the hook action.
+func (c *AnalysisController) Hook(ctx *app.HookAnalysisContext) error {
+	// AnalysisController_Hook: start_implement
 
 	// Put your logic here
 
-	// AnalysisController_Back: end_implement
+	// AnalysisController_Hook: end_implement
 	res := app.AntEvenBackCollection{}
 	return ctx.OK(res)
 }

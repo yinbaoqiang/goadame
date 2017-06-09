@@ -1,482 +1,80 @@
-basePath: /v1
 consumes:
 - application/json
+- application/xml
+- application/gob
+- application/x-gob
 definitions:
-  AddRegeventPayload:
+  error:
+    description: Error response media type (default view)
     example:
-      action: Vero et illum ducimus.
-      bakurl: Quia perferendis nemo eligendi.
-      etype: Molestiae voluptates sed.
-      from: Labore ut.
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609e+09
+      status: "400"
     properties:
-      action:
-        description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Vero et illum ducimus.
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
         type: string
-      bakurl:
-        description: 回调路径
-        example: Quia perferendis nemo eligendi.
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
         type: string
-      etype:
-        description: 事件类型
-        example: Molestiae voluptates sed.
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
         type: string
-      from:
-        description: 产生事件的服务器标识
-        example: Labore ut.
-        type: string
-    required:
-    - etype
-    - bakurl
-    - from
-    title: AddRegeventPayload
-    type: object
-  AntEvenBack:
-    description: 事件监听信息 (default view)
-    example:
-      backurl: Quibusdam praesentium ullam.
-      eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
-      error: Voluptatum neque possimus alias doloremque minima.
-      execTime: 2.9602116e+18
-      startTime: 1977-07-22T17:16:32+08:00
-      success: true
-    properties:
-      backurl:
-        description: 回调连接
-        example: Quibusdam praesentium ullam.
-        type: string
-      eid:
-        description: 事件唯一标识
-        example: Quia architecto.
-        type: string
-      endTime:
-        description: 执行结束时间
-        example: 1986-09-12T07:55:11+09:00
-        format: date-time
-        type: string
-      error:
-        description: 执行错误时的错误信息
-        example: Voluptatum neque possimus alias doloremque minima.
-        type: string
-      execTime:
-        description: 执行时间,单位纳秒
-        example: 2.9602116e+18
-        format: int64
-        type: integer
-      startTime:
-        description: 开始执行时间
-        example: 1977-07-22T17:16:32+08:00
-        format: date-time
-        type: string
-      success:
-        description: 执行是否成功
-        example: true
-        type: boolean
-    required:
-    - eid
-    - backurl
-    - startTime
-    - endTime
-    - execTime
-    - success
-    title: 'Mediatype identifier: vnd.ant.even.back+json; view=default'
-    type: object
-  AntEvenBackCollection:
-    description: AntEvenBackCollection is the media type for an array of AntEvenBack
-      (default view)
-    example:
-    - backurl: Quibusdam praesentium ullam.
-      eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
-      error: Voluptatum neque possimus alias doloremque minima.
-      execTime: 2.9602116e+18
-      startTime: 1977-07-22T17:16:32+08:00
-      success: true
-    - backurl: Quibusdam praesentium ullam.
-      eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
-      error: Voluptatum neque possimus alias doloremque minima.
-      execTime: 2.9602116e+18
-      startTime: 1977-07-22T17:16:32+08:00
-      success: true
-    items:
-      $ref: '#/definitions/AntEvenBack'
-    title: 'Mediatype identifier: vnd.ant.even.back+json; type=collection; view=default'
-    type: array
-  AntReg:
-    description: 事件监听信息 (default view)
-    example:
-      action: Ab itaque nisi.
-      backurl: Eius ad.
-      etype: Suscipit sed ut laudantium illo non.
-      from: Earum et quia quia cum voluptate.
-      rid: Ut quam fugiat aliquid.
-    properties:
-      action:
-        description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Ab itaque nisi.
-        type: string
-      backurl:
-        description: 回调路径
-        example: Eius ad.
-        type: string
-      etype:
-        description: 事件类型
-        example: Suscipit sed ut laudantium illo non.
-        type: string
-      from:
-        description: 产生事件的服务器标识
-        example: Earum et quia quia cum voluptate.
-        type: string
-      rid:
-        description: 注册事件监听唯一标识
-        example: Ut quam fugiat aliquid.
-        type: string
-    required:
-    - rid
-    - etype
-    - backurl
-    - from
-    title: 'Mediatype identifier: vnd.ant.reg+json; view=default'
-    type: object
-  AntRegList:
-    description: 事件监听列表 (default view)
-    example:
-      list:
-      - action: Ab itaque nisi.
-        backurl: Eius ad.
-        etype: Suscipit sed ut laudantium illo non.
-        from: Earum et quia quia cum voluptate.
-        rid: Ut quam fugiat aliquid.
-      - action: Ab itaque nisi.
-        backurl: Eius ad.
-        etype: Suscipit sed ut laudantium illo non.
-        from: Earum et quia quia cum voluptate.
-        rid: Ut quam fugiat aliquid.
-      - action: Ab itaque nisi.
-        backurl: Eius ad.
-        etype: Suscipit sed ut laudantium illo non.
-        from: Earum et quia quia cum voluptate.
-        rid: Ut quam fugiat aliquid.
-      total: 4.8583125e+18
-    properties:
-      list:
-        description: 事件类型
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
         example:
-        - action: Ab itaque nisi.
-          backurl: Eius ad.
-          etype: Suscipit sed ut laudantium illo non.
-          from: Earum et quia quia cum voluptate.
-          rid: Ut quam fugiat aliquid.
-        - action: Ab itaque nisi.
-          backurl: Eius ad.
-          etype: Suscipit sed ut laudantium illo non.
-          from: Earum et quia quia cum voluptate.
-          rid: Ut quam fugiat aliquid.
-        - action: Ab itaque nisi.
-          backurl: Eius ad.
-          etype: Suscipit sed ut laudantium illo non.
-          from: Earum et quia quia cum voluptate.
-          rid: Ut quam fugiat aliquid.
-        items:
-          $ref: '#/definitions/AntReg'
-        type: array
-      total:
-        description: 总数量
-        example: 4.8583125e+18
-        format: int64
-        type: integer
-    required:
-    - total
-    title: 'Mediatype identifier: vnd.ant.reg.list+json; view=default'
+          timestamp: 1.458609e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
-  AntRegResult:
-    description: 注册事件监听成功 (default view)
-    example:
-      ok: true
-    properties:
-      ok:
-        description: 成功标识
-        example: true
-        type: boolean
-    title: 'Mediatype identifier: vnd.ant.reg.result+json; view=default'
-    type: object
-  AntResult:
-    description: 创建事件成功返回 (default view)
-    example:
-      eid: Fuga nemo sit aut neque qui.
-    properties:
-      eid:
-        description: 事件唯一标识
-        example: Fuga nemo sit aut neque qui.
-        type: string
-    title: 'Mediatype identifier: vnd.ant.result+json; view=default'
-    type: object
-  PostEventPayload:
-    example:
-      action: Omnis aliquid optio odio.
-      etype: Molestias quam ut voluptas optio.
-      from: Molestias officiis ut non et.
-      occtime: Officia aperiam est consequatur.
-      params: true
-    properties:
-      action:
-        description: 事件行为
-        example: Omnis aliquid optio odio.
-        type: string
-      etype:
-        description: 事件类型
-        example: Molestias quam ut voluptas optio.
-        type: string
-      from:
-        description: 产生事件的服务器标识
-        example: Molestias officiis ut non et.
-        type: string
-      occtime:
-        description: 事件发生时间
-        example: Officia aperiam est consequatur.
-        type: string
-      params:
-        description: 事件发生时间
-        example: true
-    required:
-    - etype
-    - action
-    - from
-    title: PostEventPayload
-    type: object
-  PutEventPayload:
-    example:
-      action: Dolorem quis dolorem perferendis saepe neque.
-      etype: Id tenetur ea sapiente eum commodi.
-      from: Est voluptas dolorum qui dolore unde.
-      occtime: Rem tempore.
-      params: 1977-05-08T18:42:53+08:00
-    properties:
-      action:
-        description: 事件行为
-        example: Dolorem quis dolorem perferendis saepe neque.
-        type: string
-      etype:
-        description: 事件类型
-        example: Id tenetur ea sapiente eum commodi.
-        type: string
-      from:
-        description: 产生事件的服务器标识
-        example: Est voluptas dolorum qui dolore unde.
-        type: string
-      occtime:
-        description: 事件发生时间
-        example: Rem tempore.
-        type: string
-      params:
-        description: 事件发生时间
-        example: 1977-05-08T18:42:53+08:00
-    required:
-    - etype
-    - action
-    - from
-    title: PutEventPayload
-    type: object
-host: localhost:8080
 info:
-  description: 这是一个事件服务引擎
-  title: 蚁动事件引擎
   version: ""
 paths:
-  /admin/event:
+  /swagger.json:
     get:
-      description: 注册事件监听
-      operationId: regevent#list
-      parameters:
-      - description: 事件行为,不设置该项则注册监听所有行为变化
-        in: query
-        name: count
-        required: false
-        type: integer
-      - description: 事件类型
-        in: query
-        name: page
-        required: false
-        type: integer
-      produces:
-      - vnd.ant.reg.list+json
+      operationId: swagger#/swagger.json
       responses:
         "200":
-          description: OK
+          description: File downloaded
           schema:
-            $ref: '#/definitions/AntRegList'
-      schemes:
-      - http
-      summary: list regevent
-      tags:
-      - regevent
-  /admin/event/{rid}:
-    delete:
-      description: 取消事件监听
-      operationId: regevent#remove
+            type: file
+      summary: Download swagger/swagger.json
+  /ui/{filepath}:
+    get:
+      operationId: public#/ui/*filepath
       parameters:
-      - description: 事件监听唯一标识
+      - description: Relative file path
         in: path
-        name: rid
+        name: filepath
         required: true
         type: string
-      produces:
-      - vnd.ant.result+json
       responses:
         "200":
-          description: OK
+          description: File downloaded
           schema:
-            $ref: '#/definitions/AntResult'
-      schemes:
-      - http
-      summary: remove regevent
-      tags:
-      - regevent
-  /admin/event/analysis:
-    get:
-      description: 事件发生历史,可以
-      operationId: analysis#list
-      parameters:
-      - description: 行为
-        in: query
-        name: action
-        required: false
-        type: string
-      - description: 分页数量
-        in: query
-        minimum: 5
-        name: count
-        required: false
-        type: integer
-      - description: 事件类型
-        in: query
-        name: etype
-        required: false
-        type: string
-      - description: 来源
-        in: query
-        name: from
-        required: false
-        type: string
-      - description: 查询分页
-        in: query
-        minimum: 1
-        name: page
-        required: false
-        type: integer
-      produces:
-      - vnd.ant.reg.list+json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/AntRegList'
-      schemes:
-      - http
-      summary: list analysis
-      tags:
-      - analysis
-  /admin/event/analysis/back/{eid}:
-    get:
-      description: 事件回调执行情况
-      operationId: analysis#back
-      parameters:
-      - in: path
-        name: eid
-        required: true
-        type: string
-      produces:
-      - vnd.ant.even.back+json; type=collection
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/AntEvenBackCollection'
-      schemes:
-      - http
-      summary: back analysis
-      tags:
-      - analysis
-  /admin/event/reg:
-    post:
-      description: 注册事件监听
-      operationId: regevent#add
-      parameters:
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/AddRegeventPayload'
-      produces:
-      - vnd.ant.reg.result+json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/AntRegResult'
-      schemes:
-      - http
-      summary: add regevent
-      tags:
-      - regevent
-  /event:
-    post:
-      description: 创建一个事件
-      operationId: event#post
-      parameters:
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/PostEventPayload'
-      produces:
-      - vnd.ant.result+json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/AntResult'
-      schemes:
-      - http
-      summary: post event
-      tags:
-      - event
-  /event/{eid}:
-    put:
-      description: 创建一个事件
-      operationId: event#put
-      parameters:
-      - description: 事件唯一标识
-        in: path
-        name: eid
-        required: true
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/PutEventPayload'
-      produces:
-      - vnd.ant.result+json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/AntResult'
+            type: file
         "404":
-          description: Not Found
-      schemes:
-      - http
-      summary: put event
-      tags:
-      - event
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download dist
 produces:
 - application/json
-responses:
-  NotFound:
-    description: Not Found
-schemes:
-- http
+- application/xml
+- application/gob
+- application/x-gob
 swagger: "2.0"

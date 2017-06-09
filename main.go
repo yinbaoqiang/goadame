@@ -28,6 +28,10 @@ func main() {
 	// Mount "regevent" controller
 	c3 := controllers.NewRegeventController(service)
 	app.MountRegeventController(service, c3)
+	c4 := controllers.NewPublicController(service)
+	app.MountPublicController(service, c4)
+	c5 := controllers.NewSwaggerController(service)
+	app.MountSwaggerController(service, c5)
 
 	// Start service
 	if err := service.ListenAndServe(":8080"); err != nil {

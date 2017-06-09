@@ -47,3 +47,14 @@ func (c *RegeventController) Remove(ctx *app.RemoveRegeventContext) error {
 	res := &app.AntResult{}
 	return ctx.OK(res)
 }
+
+// Update runs the update action.
+func (c *RegeventController) Update(ctx *app.UpdateRegeventContext) error {
+	// RegeventController_Update: start_implement
+
+	// Put your logic here
+
+	// RegeventController_Update: end_implement
+	res := &app.AntRegResult{}
+	return ctx.OK(res)
+}
