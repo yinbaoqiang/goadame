@@ -41,10 +41,11 @@ type hook string
 func (h hook) call(ctx context.Context, etype, action string, data []byte) error {
 	req, err := http.NewRequest("PUT", string(h), bytes.NewBuffer(data))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	header := req.Header
 	header.Set("Content-Type", "application/json")
+	http.DefaultClient.Do()
 	return req, nil
 	return nil
 }
