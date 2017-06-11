@@ -124,8 +124,8 @@ func (mt *AntHistoryInfo) Validate() (err error) {
 
 // 事件监听信息 (default view)
 //
-// Identifier: vnd.ant.reg+json; view=default
-type AntReg struct {
+// Identifier: vnd.ant.listen+json; view=default
+type AntListen struct {
 	// 事件行为,不设置该项则注册监听所有行为变化
 	Action *string `form:"action,omitempty" json:"action,omitempty" xml:"action,omitempty"`
 	// 事件类型
@@ -138,8 +138,8 @@ type AntReg struct {
 	Rid string `form:"rid" json:"rid" xml:"rid"`
 }
 
-// Validate validates the AntReg media type instance.
-func (mt *AntReg) Validate() (err error) {
+// Validate validates the AntListen media type instance.
+func (mt *AntListen) Validate() (err error) {
 	if mt.Rid == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "rid"))
 	}
@@ -157,16 +157,16 @@ func (mt *AntReg) Validate() (err error) {
 
 // 事件监听列表 (default view)
 //
-// Identifier: vnd.ant.reg.list+json; view=default
-type AntRegList struct {
+// Identifier: vnd.ant.listen.list+json; view=default
+type AntListenList struct {
 	// 事件类型
-	List []*AntReg `form:"list,omitempty" json:"list,omitempty" xml:"list,omitempty"`
+	List []*AntListen `form:"list,omitempty" json:"list,omitempty" xml:"list,omitempty"`
 	// 总数量
 	Total int `form:"total" json:"total" xml:"total"`
 }
 
-// Validate validates the AntRegList media type instance.
-func (mt *AntRegList) Validate() (err error) {
+// Validate validates the AntListenList media type instance.
+func (mt *AntListenList) Validate() (err error) {
 	for _, e := range mt.List {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {

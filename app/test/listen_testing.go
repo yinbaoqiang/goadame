@@ -529,7 +529,7 @@ func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, page *int) (http.ResponseWriter, *app.AntRegList) {
+func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, page *int) (http.ResponseWriter, *app.AntListenList) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -610,12 +610,12 @@ func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.AntRegList
+	var mt *app.AntListenList
 	if resp != nil {
 		var ok bool
-		mt, ok = resp.(*app.AntRegList)
+		mt, ok = resp.(*app.AntListenList)
 		if !ok {
-			t.Fatalf("invalid response media: got %+v, expected instance of app.AntRegList", resp)
+			t.Fatalf("invalid response media: got %+v, expected instance of app.AntListenList", resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

@@ -147,8 +147,8 @@ func NewListAnalysisContext(ctx context.Context, r *http.Request, service *goa.S
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListAnalysisContext) OK(r *AntRegList) error {
-	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.list+json")
+func (ctx *ListAnalysisContext) OK(r *AntEventHistoryList) error {
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.event.history.list+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
@@ -443,6 +443,11 @@ func (payload *addListenPayload) Validate() (err error) {
 	if payload.From == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
 	}
+	if payload.Hookurl != nil {
+		if ok := goa.ValidatePattern(`^https?://((\w)+.?)+/(\w+)$`, *payload.Hookurl); !ok {
+			err = goa.MergeErrors(err, goa.InvalidPatternError(`raw.hookurl`, *payload.Hookurl, `^https?://((\w)+.?)+/(\w+)$`))
+		}
+	}
 	return
 }
 
@@ -486,6 +491,9 @@ func (payload *AddListenPayload) Validate() (err error) {
 	}
 	if payload.From == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "from"))
+	}
+	if ok := goa.ValidatePattern(`^https?://((\w)+.?)+/(\w+)$`, payload.Hookurl); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`raw.hookurl`, payload.Hookurl, `^https?://((\w)+.?)+/(\w+)$`))
 	}
 	return
 }
@@ -580,8 +588,8 @@ func NewListListenContext(ctx context.Context, r *http.Request, service *goa.Ser
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListListenContext) OK(r *AntRegList) error {
-	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.reg.list+json")
+func (ctx *ListListenContext) OK(r *AntListenList) error {
+	ctx.ResponseData.Header().Set("Content-Type", "vnd.ant.listen.list+json")
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 

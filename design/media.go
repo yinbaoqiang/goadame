@@ -46,8 +46,8 @@ var RegResultMedia = apidsl.MediaType("vnd.ant.reg.result+json", func() {
 	})
 })
 
-// RegInfoMedia 注册监听事件列表
-var RegInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
+// ListenInfoMedia 注册监听事件列表
+var ListenInfoMedia = apidsl.MediaType("vnd.ant.listen+json", func() {
 	apidsl.Description("事件监听信息")
 
 	apidsl.Attributes(func() { // (shape of the request body).
@@ -71,13 +71,13 @@ var RegInfoMedia = apidsl.MediaType("vnd.ant.reg+json", func() {
 	})
 })
 
-// RegListMedia 注册监听事件列表
-var RegListMedia = apidsl.MediaType("vnd.ant.reg.list+json", func() {
+// ListenListMedia 注册监听事件列表
+var ListenListMedia = apidsl.MediaType("vnd.ant.listen.list+json", func() {
 	apidsl.Description("事件监听列表")
 
 	apidsl.Attributes(func() { // (shape of the request body).
 		apidsl.Attribute("total", design.Integer, "总数量")
-		apidsl.Attribute("list", apidsl.ArrayOf(RegInfoMedia), "事件类型")
+		apidsl.Attribute("list", apidsl.ArrayOf(ListenInfoMedia), "事件类型")
 		apidsl.Required("total")
 
 	})

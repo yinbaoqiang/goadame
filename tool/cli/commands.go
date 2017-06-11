@@ -130,7 +130,7 @@ Payload example:
    "action": "Vero et illum ducimus.",
    "etype": "Quia perferendis nemo eligendi.",
    "from": "Molestiae voluptates sed.",
-   "hookurl": "Labore ut."
+   "hookurl": "Mrs. Ron Steuber"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -252,10 +252,10 @@ Payload example:
 Payload example:
 
 {
-   "action": "Modi et inventore rem ut.",
-   "etype": "Sunt enim.",
-   "from": "Eaque odio officiis rerum eos delectus.",
-   "hookurl": "Vero et magnam pariatur pariatur rerum et."
+   "action": "Et inventore rem ut eius sunt.",
+   "etype": "Unde eaque odio officiis.",
+   "from": "Eos delectus in vero et.",
+   "hookurl": "Pariatur pariatur rerum et nulla magni magni."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}

@@ -6,7 +6,7 @@ definitions:
       action: Vero et illum ducimus.
       etype: Quia perferendis nemo eligendi.
       from: Molestiae voluptates sed.
-      hookurl: Labore ut.
+      hookurl: Mrs. Ron Steuber
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
@@ -22,7 +22,8 @@ definitions:
         type: string
       hookurl:
         description: 钩子url
-        example: Labore ut.
+        example: Mrs. Ron Steuber
+        pattern: ^https?://((\w)+.?)+/(\w+)$
         type: string
     required:
     - etype
@@ -114,7 +115,74 @@ definitions:
       $ref: '#/definitions/AntEvenBack'
     title: 'Mediatype identifier: vnd.ant.even.back+json; type=collection; view=default'
     type: array
-  AntReg:
+  AntEventHistoryList:
+    description: 事件监听列表 (default view)
+    example:
+      list:
+      - action: In quod quia aut non eius perspiciatis.
+        eid: Voluptas voluptatem quibusdam.
+        etype: Et excepturi.
+        from: Porro ipsum ut.
+      - action: In quod quia aut non eius perspiciatis.
+        eid: Voluptas voluptatem quibusdam.
+        etype: Et excepturi.
+        from: Porro ipsum ut.
+      total: 3.369696e+17
+    properties:
+      list:
+        description: 事件类型
+        example:
+        - action: In quod quia aut non eius perspiciatis.
+          eid: Voluptas voluptatem quibusdam.
+          etype: Et excepturi.
+          from: Porro ipsum ut.
+        - action: In quod quia aut non eius perspiciatis.
+          eid: Voluptas voluptatem quibusdam.
+          etype: Et excepturi.
+          from: Porro ipsum ut.
+        items:
+          $ref: '#/definitions/AntHistoryInfo'
+        type: array
+      total:
+        description: 总数量
+        example: 3.369696e+17
+        format: int64
+        type: integer
+    required:
+    - total
+    title: 'Mediatype identifier: vnd.ant.event.history.list+json; view=default'
+    type: object
+  AntHistoryInfo:
+    description: 事件监听信息 (default view)
+    example:
+      action: In quod quia aut non eius perspiciatis.
+      eid: Voluptas voluptatem quibusdam.
+      etype: Et excepturi.
+      from: Porro ipsum ut.
+    properties:
+      action:
+        description: 事件行为,不设置该项则注册监听所有行为变化
+        example: In quod quia aut non eius perspiciatis.
+        type: string
+      eid:
+        description: 事件唯一标识
+        example: Voluptas voluptatem quibusdam.
+        type: string
+      etype:
+        description: 事件类型
+        example: Et excepturi.
+        type: string
+      from:
+        description: 产生事件的服务器标识
+        example: Porro ipsum ut.
+        type: string
+    required:
+    - eid
+    - etype
+    - from
+    title: 'Mediatype identifier: vnd.ant.history.info+json; view=default'
+    type: object
+  AntListen:
     description: 事件监听信息 (default view)
     example:
       action: Eius ad.
@@ -148,9 +216,9 @@ definitions:
     - etype
     - hookurl
     - from
-    title: 'Mediatype identifier: vnd.ant.reg+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.listen+json; view=default'
     type: object
-  AntRegList:
+  AntListenList:
     description: 事件监听列表 (default view)
     example:
       list:
@@ -170,7 +238,7 @@ definitions:
           hookurl: Ut quam fugiat aliquid.
           rid: Consequatur recusandae repellendus rerum dolorem libero sunt.
         items:
-          $ref: '#/definitions/AntReg'
+          $ref: '#/definitions/AntListen'
         type: array
       total:
         description: 总数量
@@ -179,7 +247,7 @@ definitions:
         type: integer
     required:
     - total
-    title: 'Mediatype identifier: vnd.ant.reg.list+json; view=default'
+    title: 'Mediatype identifier: vnd.ant.listen.list+json; view=default'
     type: object
   AntRegResult:
     description: 注册事件监听成功 (default view)
@@ -271,26 +339,26 @@ definitions:
     type: object
   UpdateListenPayload:
     example:
-      action: Modi et inventore rem ut.
-      etype: Sunt enim.
-      from: Eaque odio officiis rerum eos delectus.
-      hookurl: Vero et magnam pariatur pariatur rerum et.
+      action: Et inventore rem ut eius sunt.
+      etype: Unde eaque odio officiis.
+      from: Eos delectus in vero et.
+      hookurl: Pariatur pariatur rerum et nulla magni magni.
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Modi et inventore rem ut.
+        example: Et inventore rem ut eius sunt.
         type: string
       etype:
         description: 事件类型
-        example: Sunt enim.
+        example: Unde eaque odio officiis.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Eaque odio officiis rerum eos delectus.
+        example: Eos delectus in vero et.
         type: string
       hookurl:
         description: 钩子url
-        example: Vero et magnam pariatur pariatur rerum et.
+        example: Pariatur pariatur rerum et nulla magni magni.
         type: string
     required:
     - etype
@@ -408,12 +476,12 @@ paths:
       produces:
       - vnd.ant.error+json
       - vnd.ant.error+json
-      - vnd.ant.reg.list+json
+      - vnd.ant.event.history.list+json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AntRegList'
+            $ref: '#/definitions/AntEventHistoryList'
         "400":
           description: Bad Request
           schema:
@@ -494,12 +562,12 @@ paths:
       produces:
       - vnd.ant.error+json
       - vnd.ant.error+json
-      - vnd.ant.reg.list+json
+      - vnd.ant.listen.list+json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AntRegList'
+            $ref: '#/definitions/AntListenList'
         "400":
           description: Bad Request
           schema:

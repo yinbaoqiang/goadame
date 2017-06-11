@@ -67,7 +67,7 @@ var _ = apidsl.Resource("listen", func() {
 			apidsl.Param("etype", design.String, "事件类型,不设置则查询所有事件类型")
 			apidsl.Param("action", design.String, "事件行为,不设置该项则查询所有行为")
 		})
-		apidsl.Response(design.OK, RegListMedia)
+		apidsl.Response(design.OK, ListenListMedia)
 	})
 
 })
@@ -90,7 +90,7 @@ var _ = apidsl.Resource("analysis", func() { // 事件分析
 			apidsl.Param("action", design.String, "行为")
 			apidsl.Param("from", design.String, "来源")
 		})
-		apidsl.Response(design.OK, RegListMedia)
+		apidsl.Response(design.OK, EventHisListMedia)
 	})
 
 	apidsl.Action("hook", func() {
