@@ -1,42 +1,68 @@
 package engine
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"net/url"
+
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
 )
 
+// Client is the antevent service client.
 type eventClient struct {
+	*goaclient.Client
+	Encoder *goa.HTTPEncoder
+	Decoder *goa.HTTPDecoder
 }
 
-type resPack struct {
-	r   *http.Response
-	err error
-}
-
-func (ec *eventClient) work(ctx context.Context, req *http.Request) {
-	tr := &http.Transport{}
-	client := &http.Client{Transport: tr}
-	c := make(chan resPack, 1)
-	go func() {
-		resp, err := client.Do(req)
-		pack := resPack{r: resp, err: err}
-		c <- pack
-	}()
-	select {
-	case <-ctx.Done():
-		tr.CancelRequest(req)
-		<-c
-		fmt.Println("Timeout!")
-	case res := <-c:
-		if res.err != nil {
-			fmt.Println(res.err)
-			return
-		}
-		defer res.r.Body.Close()
-		out, _ := ioutil.ReadAll(res.r.Body)
-		fmt.Printf("Server Response: %s", out)
+// newEventClient instantiates the client.
+func newEventClient() *eventClient {
+	client := &eventClient{
+		Client:  goaclient.New(goaclient.HTTPClientDoer(http.DefaultClient)),
+		Encoder: goa.NewHTTPEncoder(),
+		Decoder: goa.NewHTTPDecoder(),
 	}
-	return
+
+	// Setup encoders and decoders
+	client.Encoder.Register(goa.NewJSONEncoder, "application/json")
+	client.Decoder.Register(goa.NewJSONDecoder, "application/json")
+
+	// Setup default encoder and decoder
+	client.Encoder.Register(goa.NewJSONEncoder, "*/*")
+	client.Decoder.Register(goa.NewJSONDecoder, "*/*")
+
+	return client
+}
+
+// 注册事件监听
+func (c *eventClient) SendEvent(ctx context.Context, path string, payload Event) (*http.Response, error) {
+	req, err := c.NewSendEventRequest(ctx, path, payload)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewAddListenRequest create the request corresponding to the add action endpoint of the listen resource.
+func (c *eventClient) NewSendEventRequest(ctx context.Context, path string, payload Event) (*http.Request, error) {
+	var body bytes.Buffer
+	err := c.Encoder.Encode(payload, &body, "*/*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("PUT", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	header.Set("Content-Type", "application/json")
+	return req, nil
 }
