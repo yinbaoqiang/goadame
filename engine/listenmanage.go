@@ -2,6 +2,8 @@ package engine
 
 import "sync"
 
+import "container/list"
+
 // ListenManager 监听管理器
 type ListenManager interface {
 	Add(url, etype, action string)
@@ -75,7 +77,7 @@ func (e *lelem) removeAction(action string) {
 func (e *lelem) remove(action, url string) {
 	e.lck.Lock()
 	defer e.lck.Unlock()
-	hu := e.getHooks(action)
+	hu := e._getHooks(action)
 	if hu != nil {
 		hu.remove(url)
 	}
@@ -106,31 +108,87 @@ func (e *lelem) put(action, url string) {
 
 }
 
-type hook string
+type hook struct {
+	url       string
+	waitQueue *list.List
+	cond      *sync.Cond
+}
 
-type hookURL []hook
+func (h *hook) putWait() {
+
+}
+func (h *hook) put(handler func()) {
+	h.cond.L.Lock()
+	h.waitQueue.PushFront(handler)
+	h.cond.Signal()
+	h.cond.L.Unlock()
+}
+
+// 等待队列中弹出一个元素
+func (h *hook) pop() func() {
+	e := h.waitQueue.Front()
+	if e == nil {
+		return nil
+	}
+	handler := e.Value.(func())
+	h.waitQueue.Remove(e)
+	return handler
+}
+func (h *hook) run() {
+	for {
+		h.cond.L.Lock()
+		if h.waitQueue.Len() == 0 {
+
+			h.cond.Wait()
+			continue
+		}
+		handler := h.pop()
+		h.cond.L.Lock()
+		if handler != nil {
+			handler()
+		}
+	}
+}
+func createHook(url string) *hook {
+	l := &sync.Mutex{}
+	h := &hook{
+		url:       url,
+		waitQueue: list.New(),
+		cond:      sync.NewCond(l),
+	}
+	go h.run()
+	return h
+}
+
+type hookURL []*hook
 
 func (u *hookURL) exists(url string) bool {
 	l := len(*u)
 	for i := 0; i < l; i++ {
-		if (*u)[i] == hook(url) {
+		if (*u)[i].url == url {
 			return true
 		}
 	}
 	return false
 }
 func (u *hookURL) add(url string) {
-	*u = append(*u, hook(url))
+	*u = append(*u, createHook(url))
 }
 func (u *hookURL) remove(url string) {
 	l := len(*u)
 	for i := 0; i < l; i++ {
-		if (*u)[i] == hook(url) {
-			n := (*u)[0:i]
-			if i+1 != l {
-				n = append(n, (*u)[i+1:l]...)
+		if (*u)[i].url == url {
+			if i == 0 {
+				*u = (*u)[1:]
+				break
+			} else if i+1 == l {
+				*u = (*u)[0:i]
+				break
 			}
-			u = &n
+			n := (*u)[0:i]
+			n = append(n, (*u)[i+1:l]...)
+			*u = n
+			break
 		}
 	}
 }
@@ -174,7 +232,7 @@ func (m *listenManage) append(etype, action, url string) {
 	u.add(url)
 	le := createLelem(etype)
 	le.put(action, url)
-	m.lmap[etype] = createLelem(etype)
+	m.lmap[etype] = le
 }
 func (m *listenManage) Remove(url, etype, action string) {
 	m.lock(func() {
