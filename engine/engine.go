@@ -1,13 +1,12 @@
 package engine
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -33,128 +32,6 @@ type Event interface {
 	GetData() map[string]interface{}
 }
 
-// ListenManager 监听管理器
-type ListenManager interface {
-	Add(url, etype, action string)
-	Remove(url, etype, action string)
-	GetAll(etype, action string) hookURL
-}
-
-type lelem struct {
-	etype  string
-	action string
-}
-type hook string
-
-func (h hook) call(ctx context.Context, etype, action string, data []byte) error {
-	req, err := http.NewRequest("PUT", string(h), bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
-	header := req.Header
-	header.Set("Content-Type", "application/json")
-	http.DefaultClient.Do()
-	return req, nil
-	return nil
-}
-
-type hookURL []hook
-
-func (u *hookURL) add(url string) {
-	*u = append(*u, hook(url))
-}
-func (u *hookURL) remove(url string) {
-	l := len(*u)
-	for i := 0; i < l; i++ {
-		if (*u)[i] == hook(url) {
-			n := (*u)[0:i]
-			if i+1 != l {
-				n = append(n, (*u)[i+1:l]...)
-			}
-			u = &n
-
-		}
-	}
-}
-
-func (u hookURL) trigger(ctx context.Context, etype, action string, data []byte) {
-	for _, h := range u {
-		go func(h hook) {
-			cx, c := context.WithCancel(ctx)
-			defer c()
-			h.call(cx, etype, action, data)
-		}(h)
-
-	}
-}
-
-type listenManage struct {
-	lmap map[lelem]*hookURL
-	lck  sync.RWMutex
-}
-
-func (m *listenManage) lock(handler func()) {
-	m.lck.Lock()
-	defer m.lck.Unlock()
-	handler()
-}
-func (m *listenManage) rlock(handler func()) {
-	m.lck.RLock()
-	defer m.lck.RUnlock()
-	handler()
-}
-func (m *listenManage) Add(url, etype, action string) {
-	m.lock(func() {
-		m.add(url, etype, action)
-	})
-}
-func (m *listenManage) add(url, etype, action string) {
-	if m.lmap == nil {
-		m.lmap = make(map[lelem]*hookURL)
-		m.append(etype, action, url)
-		return
-	}
-	u, ok := m.lmap[lelem{etype, action}]
-	if !ok {
-		m.append(etype, action, url)
-		return
-	}
-	*u = append(*u, hook(url))
-
-}
-func (m *listenManage) append(etype, action, url string) {
-	u := make(hookURL, 0, 2)
-	u.add(url)
-	m.lmap[lelem{etype, action}] = &u
-}
-func (m *listenManage) Remove(url, etype, action string) {
-	m.lock(func() {
-		m.remove(url, etype, action)
-	})
-}
-func (m *listenManage) remove(url, etype, action string) {
-	u, ok := m.lmap[lelem{etype, action}]
-	if !ok {
-		return
-	}
-	u.remove(url)
-}
-
-func (m *listenManage) GetAll(etype, action string) (hu hookURL) {
-	m.rlock(func() {
-		hu = m.getAll(etype, action)
-	})
-	return
-}
-func (m *listenManage) getAll(etype, action string) (hu hookURL) {
-	u, ok := m.lmap[lelem{etype, action}]
-	if !ok {
-		return
-	}
-	hu = *u
-	return
-}
-
 // EventEnginer 事件引擎
 type EventEnginer interface {
 	// 获取监听管理器
@@ -175,12 +52,20 @@ func (e *eventEngine) ListenManager() ListenManager {
 	return e.lm
 }
 
-func (e *eventEngine) Put(ei Event) {
-	e.echan <- ei
+func (e *eventEngine) Put(ei Event) error {
+	select {
+	case e.echan <- ei:
+	default:
+		return errors.New("事件引擎已经关闭或未开启")
+	}
+	return nil
 }
 func (e *eventEngine) work() {
 
-	for {
+	for ei := range e.echan {
+		if ei != nil {
+			e.one(ei)
+		}
 
 	}
 }
