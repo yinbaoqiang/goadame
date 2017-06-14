@@ -3,6 +3,7 @@ package engine
 import "sync"
 
 import "container/list"
+import "fmt"
 
 // ListenManager 监听管理器
 type ListenManager interface {
@@ -38,9 +39,36 @@ func (e *lelem) getHooks(action string) *hookURL {
 	defer e.lck.RUnlock()
 	hu, ok := e.action[action]
 	if !ok {
+		fmt.Println("nil")
+		return nil
+	}
+	l := len(*hu) + len(e.all)
+	if l == 0 {
+		return nil
+	}
+
+	out := make(hookURL, 0, l)
+	if len(*hu) > 0 {
+
+		out = append(out, (*hu)...)
+	}
+	if len(e.all) > 0 {
+		out = append(out, e.all...)
+	}
+	return &out
+}
+func (e *lelem) _getLckHooks(action string) *hookURL {
+	if action == "" {
+		return &e.all
+	}
+	e.lck.RLock()
+	defer e.lck.RUnlock()
+	hu, ok := e.action[action]
+	if !ok {
 		return nil
 	}
 	return hu
+
 }
 
 // 通过行为找到注册的hook
@@ -83,7 +111,7 @@ func (e *lelem) remove(action, url string) {
 	}
 }
 func (e *lelem) put(action, url string) {
-	hu := e.getHooks(action)
+	hu := e._getLckHooks(action)
 	if hu == nil {
 		e.lck.Lock()
 		hu = e._getHooks(action)
@@ -119,7 +147,7 @@ func (h *hook) putWait() {
 }
 func (h *hook) put(handler func()) {
 	h.cond.L.Lock()
-	h.waitQueue.PushFront(handler)
+	h.waitQueue.PushBack(handler)
 	h.cond.Signal()
 	h.cond.L.Unlock()
 }
@@ -143,7 +171,7 @@ func (h *hook) run() {
 			continue
 		}
 		handler := h.pop()
-		h.cond.L.Lock()
+		h.cond.L.Unlock()
 		if handler != nil {
 			handler()
 		}

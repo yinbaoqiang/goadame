@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 )
@@ -48,6 +49,7 @@ func Test_listenManage1(t *testing.T) {
 			}
 			if !r {
 				t.Errorf("%s测试错误", tt.name)
+				return
 			}
 		})
 	}
@@ -87,6 +89,7 @@ func Test_listenManage2(t *testing.T) {
 		args args
 	}{
 		// TODO: Add test cases.
+		{name: "测试1_0", args: args{etype: "typ_1", action: "", url: "http://test/test1_0"}},
 		{name: "测试1_1", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
 		{name: "测试1_2", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1_2"}},
 		{name: "测试1_3", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1_3"}},
@@ -110,7 +113,16 @@ func Test_listenManage2(t *testing.T) {
 			}
 		})
 	}
-
+	us := lm.GetAll("typ_1", "abc")
+	if us != nil {
+		t.Error("测试错误")
+		return
+	}
+	us = lm.GetAll("typ_1", "")
+	if us == nil {
+		t.Error("测试错误")
+		return
+	}
 	tests = []struct {
 		name string
 		args args
@@ -141,6 +153,31 @@ func Test_listenManage2(t *testing.T) {
 				t.Errorf("%s测试remove错误", tt.name)
 			}
 		})
+	}
+
+}
+
+func Test_createHook(t *testing.T) {
+	h := createHook("test")
+	n := 10
+	c := make(chan int, n*2)
+	for i := 0; i < n; i++ {
+		j := i
+		h.put(func() {
+			fmt.Println("send:", j)
+			c <- j
+		})
+	}
+	m := 0
+	for i := range c {
+		fmt.Println("reveive:", i)
+		if i != m {
+			t.Error("结果错误")
+		}
+		m++
+		if m == n {
+			break
+		}
 	}
 
 }

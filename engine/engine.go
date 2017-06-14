@@ -16,33 +16,27 @@ type HookResult struct {
 	Msg string `json:"msg"`
 }
 
-// EventInfo 事件
-type EventInfo struct {
-	Eid     string    `json:"eid"`
-	Action  string    `json:"action"`
-	Etype   string    `json:"etype"`
-	From    string    `json:"from"`
-	OccTime time.Time `json:"occTime"`
-}
-
-// Event 事件
-type Event interface {
-	// GetEventInfo 获取事件信息
-	GetEventInfo() EventInfo
-	// GetData 获取数据
-	GetData() map[string]interface{}
-}
-
 // EventEnginer 事件引擎
 type EventEnginer interface {
 	// 获取监听管理器
 	ListenManager() ListenManager
 
-	Receive(ei EventInfo)
+	Put(ei Event) error
+
+	Start()
+	Stop()
+}
+
+// CreateEventEnginer 创建事件引擎
+func CreateEventEnginer() EventEnginer {
+	return &eventEngine{
+		lm:     createListenManager(),
+		client: newEventClient(),
+	}
 }
 
 type eventEngine struct {
-	lm *listenManage
+	lm ListenManager
 
 	client *eventClient
 
@@ -63,7 +57,7 @@ func (e *eventEngine) Put(ei Event) error {
 	return nil
 }
 func (e *eventEngine) Start() {
-	e.echan = make(chan Event)
+	e.echan = make(chan Event, 10)
 	go e.work()
 }
 func (e *eventEngine) Stop() {
@@ -73,7 +67,7 @@ func (e *eventEngine) Stop() {
 func (e *eventEngine) work() {
 
 	for ei := range e.echan {
-		if ei != nil {
+		if ei.Info.Etype != "" {
 			e.one(ei)
 		}
 
@@ -83,8 +77,7 @@ func (e *eventEngine) one(ei Event) {
 	// 持久化事件
 	go e.storeOne(ei)
 	// 查询事件监听
-
-	hu := e.lm.GetAll(ei.GetEventInfo().Etype, ei.GetEventInfo().Action)
+	hu := e.lm.GetAll(ei.Info.Etype, ei.Info.Action)
 	for _, h := range hu {
 		e.wg.Add(1)
 		// 加入调用队列
