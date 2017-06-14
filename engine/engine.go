@@ -30,15 +30,12 @@ type EventEnginer interface {
 // CreateEventEnginer 创建事件引擎
 func CreateEventEnginer() EventEnginer {
 	return &eventEngine{
-		lm:     createListenManager(),
-		client: newEventClient(),
+		lm: createListenManager(),
 	}
 }
 
 type eventEngine struct {
 	lm ListenManager
-
-	client *eventClient
 
 	echan chan Event
 	wg    sync.WaitGroup
@@ -78,12 +75,16 @@ func (e *eventEngine) one(ei Event) {
 	go e.storeOne(ei)
 	// 查询事件监听
 	hu := e.lm.GetAll(ei.Info.Etype, ei.Info.Action)
+
 	for _, h := range hu {
 		e.wg.Add(1)
 		// 加入调用队列
-		h.put(func() {
+		fmt.Printf("%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, h.url)
+		nh := h
+		nh.put(func() {
 			// 执行钩子回调
-			e.hook(h.url, ei)
+			fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, nh.url)
+			e.hook(nh.url, ei)
 		})
 
 	}
@@ -94,7 +95,7 @@ func (e *eventEngine) one(ei Event) {
 // url 发送地址
 // ei 事件
 func (e *eventEngine) _sendEvent(ctx context.Context, url string, ei Event) error {
-	res, err := e.client.SendEvent(ctx, url, ei)
+	res, err := newEventClient().SendEvent(ctx, url, ei)
 	if err != nil {
 
 		return err
@@ -154,12 +155,12 @@ func (e *eventEngine) hook(url string, ei Event) {
 
 // 存储钩子回调事件失败
 func (e *eventEngine) hookError(url string, ei Event, err error, start time.Time) {
-
+	fmt.Printf("hookError%s:%s=>%s\n%v", ei.Info.Etype, ei.Info.Action, url, err)
 }
 
 // 存储钩子回调事件成功
 func (e *eventEngine) hookSuccess(url string, ei Event, start time.Time) {
-
+	fmt.Printf("hookEhookSuccessrror%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, url)
 }
 func (e *eventEngine) storeOne(ei Event) {
 

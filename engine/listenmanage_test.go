@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 )
@@ -159,18 +158,18 @@ func Test_listenManage2(t *testing.T) {
 
 func Test_createHook(t *testing.T) {
 	h := createHook("test")
-	n := 10
+	n := 100
 	c := make(chan int, n*2)
 	for i := 0; i < n; i++ {
 		j := i
 		h.put(func() {
-			fmt.Println("send:", j)
+			// fmt.Println("send:", j)
 			c <- j
 		})
 	}
 	m := 0
 	for i := range c {
-		fmt.Println("reveive:", i)
+		// fmt.Println("reveive:", i)
 		if i != m {
 			t.Error("结果错误")
 		}

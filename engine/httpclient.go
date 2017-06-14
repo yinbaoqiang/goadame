@@ -53,12 +53,10 @@ func (c *eventClient) NewSendEventRequest(ctx context.Context, path string, payl
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
-	scheme := c.Scheme
-	if scheme == "" {
-		scheme = "http"
-	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	req, err := http.NewRequest("PUT", u.String(), &body)
+	u, _ := url.Parse(path)
+	c.Scheme = u.Scheme
+	c.Host = u.Host
+	req, err := http.NewRequest("PUT", path, &body)
 	if err != nil {
 		return nil, err
 	}

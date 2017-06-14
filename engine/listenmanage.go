@@ -17,9 +17,11 @@ func createListenManager() ListenManager {
 }
 
 func createLelem(etype string) *lelem {
+	a := make(hookURL, 0, 1)
 	return &lelem{
 		etype:  etype,
 		action: make(map[string]*hookURL),
+		all:    a,
 	}
 }
 
@@ -31,36 +33,35 @@ type lelem struct {
 }
 
 // 通过行为找到注册的hook
-func (e *lelem) getHooks(action string) *hookURL {
-	if action == "" {
-		return &e.all
-	}
+func (e *lelem) getHooks(action string) (out *hookURL) {
 	e.lck.RLock()
 	defer e.lck.RUnlock()
+	defer func() {
+		if len(e.all) > 0 {
+			*out = append(*out, (e.all)...)
+		}
+	}()
+
+	h := make(hookURL, 0, 2)
+	out = &h
+	if action == "" {
+		return
+	}
+
 	hu, ok := e.action[action]
 	if !ok {
 		fmt.Println("nil")
-		return nil
-	}
-	l := len(*hu) + len(e.all)
-	if l == 0 {
-		return nil
+		return
 	}
 
-	out := make(hookURL, 0, l)
 	if len(*hu) > 0 {
 
-		out = append(out, (*hu)...)
+		*out = append(*out, (*hu)...)
 	}
-	if len(e.all) > 0 {
-		out = append(out, e.all...)
-	}
-	return &out
+
+	return
 }
 func (e *lelem) _getLckHooks(action string) *hookURL {
-	if action == "" {
-		return &e.all
-	}
 	e.lck.RLock()
 	defer e.lck.RUnlock()
 	hu, ok := e.action[action]
@@ -73,10 +74,6 @@ func (e *lelem) _getLckHooks(action string) *hookURL {
 
 // 通过行为找到注册的hook
 func (e *lelem) _getHooks(action string) *hookURL {
-	if action == "" {
-		return &e.all
-	}
-
 	hu, ok := e.action[action]
 	if !ok {
 		return nil
@@ -111,6 +108,21 @@ func (e *lelem) remove(action, url string) {
 	}
 }
 func (e *lelem) put(action, url string) {
+	if action == "" {
+		if e.all.exists(url) {
+			return
+		}
+		e.lck.Lock()
+		defer e.lck.Unlock()
+		if e.all.exists(url) {
+			return
+		}
+		//e.all = append(e.all, createHook(url))
+		e.all.add(url)
+		fmt.Printf("e.all add:%#v\n", e.all[0])
+		return
+	}
+
 	hu := e._getLckHooks(action)
 	if hu == nil {
 		e.lck.Lock()
@@ -132,8 +144,7 @@ func (e *lelem) put(action, url string) {
 	if hu.exists(url) {
 		return
 	}
-	hu.add(url)
-
+	*hu = append(*hu, createHook(url))
 }
 
 type hook struct {
@@ -168,6 +179,7 @@ func (h *hook) run() {
 		if h.waitQueue.Len() == 0 {
 
 			h.cond.Wait()
+			h.cond.L.Unlock()
 			continue
 		}
 		handler := h.pop()
