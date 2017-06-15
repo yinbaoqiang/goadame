@@ -1,4 +1,4 @@
-package engine
+package engine_test
 
 import (
 	"encoding/json"
@@ -6,8 +6,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	. "github.com/yinbaoqiang/goadame/engine"
 )
 
 const (
@@ -30,7 +34,7 @@ func (s *testStore) HookError(url string, ei Event, err error, start, end time.T
 func (s *testStore) HookSuccess(url string, ei Event, start, end time.Time) {
 	s.callback(ei, hookSuccess)
 }
-func (s *testStore) StoreOne(ei Event) {
+func (s *testStore) SaveEvent(ei Event) {
 	s.callback(ei, storeOne)
 }
 
@@ -53,13 +57,13 @@ func (t *testServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		resp.WriteHeader(400)
 		return
 	}
-	old, ok := t.defEvents[evt.Info.Eid]
+	old, ok := t.defEvents[evt.Eid]
 	if !ok {
 		t.gt.Errorf("收到错误的事件:%s\n", string(data))
 		return
 	}
 
-	if old.Info != evt.Info {
+	if old.Eid != evt.Eid {
 		t.gt.Errorf("收到错误的事件:%s\n", string(data))
 		return
 	}
@@ -80,9 +84,9 @@ func TestOK(t *testing.T) {
 
 	var (
 		defEvents = map[string]Event{
-			"10920192": Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}},
-			"10920193": Event{Info: EventInfo{Eid: "10920193", Etype: "typ_test", Action: "action_test"}},
-			"10920194": Event{Info: EventInfo{Eid: "10920194", Etype: "typ_test", Action: "action_test2"}},
+			"10920192": Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"},
+			"10920193": Event{Eid: "10920193", Etype: "typ_test", Action: "action_test"},
+			"10920194": Event{Eid: "10920194", Etype: "typ_test", Action: "action_test2"},
 		}
 	)
 	enum := len(defEvents)
@@ -94,9 +98,9 @@ func TestOK(t *testing.T) {
 			switch opresult {
 			case hookError:
 				t.Errorf("该处不应该失败")
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case hookSuccess:
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case storeOne:
 				storecnt++
 			}
@@ -110,7 +114,7 @@ func TestOK(t *testing.T) {
 
 	engine.Stop()
 
-	err := engine.Put(Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}})
+	err := engine.Put(Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"})
 	if err == nil {
 		t.Errorf("添加事件应该失败")
 	}
@@ -127,9 +131,9 @@ func TestOK2(t *testing.T) {
 
 	var (
 		defEvents = map[string]Event{
-			"10920192": Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}},
-			"10920193": Event{Info: EventInfo{Eid: "10920193", Etype: "typ_test", Action: "action_test"}},
-			"10920194": Event{Info: EventInfo{Eid: "10920194", Etype: "typ_test", Action: "action_test2"}},
+			"10920192": Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"},
+			"10920193": Event{Eid: "10920193", Etype: "typ_test", Action: "action_test"},
+			"10920194": Event{Eid: "10920194", Etype: "typ_test", Action: "action_test2"},
 		}
 	)
 	enum := len(defEvents)
@@ -141,9 +145,9 @@ func TestOK2(t *testing.T) {
 			switch opresult {
 			case hookError:
 				t.Errorf("该处不应该失败")
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case hookSuccess:
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case storeOne:
 				storecnt++
 			}
@@ -170,9 +174,9 @@ func TestError500(t *testing.T) {
 
 	var (
 		defEvents = map[string]Event{
-			"10920192": Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}},
-			"10920193": Event{Info: EventInfo{Eid: "10920193", Etype: "typ_test", Action: "action_test"}},
-			"10920194": Event{Info: EventInfo{Eid: "10920194", Etype: "typ_test", Action: "action_test2"}},
+			"10920192": Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"},
+			"10920193": Event{Eid: "10920193", Etype: "typ_test", Action: "action_test"},
+			"10920194": Event{Eid: "10920194", Etype: "typ_test", Action: "action_test2"},
 		}
 	)
 	enum := len(defEvents)
@@ -190,17 +194,17 @@ func TestError500(t *testing.T) {
 			resp.WriteHeader(400)
 			return
 		}
-		old, ok := defEvents[evt.Info.Eid]
+		old, ok := defEvents[evt.Eid]
 		if !ok {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
 
-		if old.Info != evt.Info {
+		if old.Eid != evt.Eid {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
-		delete(defEvents, old.Info.Eid)
+		delete(defEvents, old.Eid)
 		t.Logf("data:%s", string(data))
 		resp.WriteHeader(500)
 		resp.Write([]byte(`{"msg":"测试500错误"}`))
@@ -211,10 +215,10 @@ func TestError500(t *testing.T) {
 		callback: func(ei Event, opresult string) {
 			switch opresult {
 			case hookError:
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case hookSuccess:
 				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case storeOne:
 				storecnt++
 			}
@@ -241,9 +245,9 @@ func TestError400(t *testing.T) {
 
 	var (
 		defEvents = map[string]Event{
-			"10920192": Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}},
-			"10920193": Event{Info: EventInfo{Eid: "10920193", Etype: "typ_test", Action: "action_test"}},
-			"10920194": Event{Info: EventInfo{Eid: "10920194", Etype: "typ_test", Action: "action_test2"}},
+			"10920192": Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"},
+			"10920193": Event{Eid: "10920193", Etype: "typ_test", Action: "action_test"},
+			"10920194": Event{Eid: "10920194", Etype: "typ_test", Action: "action_test2"},
 		}
 	)
 	enum := len(defEvents)
@@ -261,17 +265,17 @@ func TestError400(t *testing.T) {
 			resp.WriteHeader(400)
 			return
 		}
-		old, ok := defEvents[evt.Info.Eid]
+		old, ok := defEvents[evt.Eid]
 		if !ok {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
 
-		if old.Info != evt.Info {
+		if old.Eid != evt.Eid {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
-		delete(defEvents, old.Info.Eid)
+		delete(defEvents, old.Eid)
 		t.Logf("data:%s", string(data))
 		resp.WriteHeader(400)
 		resp.Write([]byte(`{"msg":"测试400错误"}`))
@@ -282,10 +286,10 @@ func TestError400(t *testing.T) {
 		callback: func(ei Event, opresult string) {
 			switch opresult {
 			case hookError:
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case hookSuccess:
 				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case storeOne:
 				storecnt++
 			}
@@ -311,9 +315,9 @@ func TestErrorTimeOut(t *testing.T) {
 
 	var (
 		defEvents = map[string]Event{
-			"10920192": Event{Info: EventInfo{Eid: "10920192", Etype: "typ_test", Action: "action_test"}},
-			"10920193": Event{Info: EventInfo{Eid: "10920193", Etype: "typ_test", Action: "action_test"}},
-			"10920194": Event{Info: EventInfo{Eid: "10920194", Etype: "typ_test", Action: "action_test2"}},
+			"10920192": Event{Eid: "10920192", Etype: "typ_test", Action: "action_test"},
+			"10920193": Event{Eid: "10920193", Etype: "typ_test", Action: "action_test"},
+			"10920194": Event{Eid: "10920194", Etype: "typ_test", Action: "action_test2"},
 		}
 	)
 	enum := len(defEvents)
@@ -331,33 +335,33 @@ func TestErrorTimeOut(t *testing.T) {
 			resp.WriteHeader(400)
 			return
 		}
-		old, ok := defEvents[evt.Info.Eid]
+		old, ok := defEvents[evt.Eid]
 		if !ok {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
 
-		if old.Info != evt.Info {
+		if old.Eid != evt.Eid {
 			t.Errorf("收到错误的事件:%s\n", string(data))
 			return
 		}
-		delete(defEvents, old.Info.Eid)
+		delete(defEvents, old.Eid)
 		t.Logf("data:%s", string(data))
 		time.Sleep(3 * time.Second)
 		resp.WriteHeader(200)
 	}))
 	defer server.Close()
-	storecnt := 0
+	storecnt := int64(0)
 	engine := CreateEventEnginer(100*time.Millisecond, &testStore{
 		callback: func(ei Event, opresult string) {
 			switch opresult {
 			case hookError:
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case hookSuccess:
 				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Info.Eid)
+				delete(defEvents, ei.Eid)
 			case storeOne:
-				storecnt++
+				atomic.AddInt64(&storecnt, 1)
 			}
 		},
 	})
@@ -365,6 +369,7 @@ func TestErrorTimeOut(t *testing.T) {
 	engine.Start()
 	for _, e := range defEvents {
 		err := engine.Put(e)
+
 		if err != nil {
 			t.Errorf("添加事件失败:%v\n", err)
 		}
@@ -373,7 +378,40 @@ func TestErrorTimeOut(t *testing.T) {
 	if len(defEvents) != 0 {
 		t.Errorf("事件处理失败，还有剩余事件没处理:%d", len(defEvents))
 	}
-	if storecnt != enum {
+	if storecnt != int64(enum) {
 		t.Errorf("事件存储数量错误:%d/%d", storecnt, enum)
+	}
+}
+
+func BenchmarkPutEvent(b *testing.B) {
+
+	server := httptest.NewServer(http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+
+		resp.WriteHeader(200)
+	}))
+	defer server.Close()
+	storecnt := int64(0)
+	errorcnt := 0
+
+	engine := CreateEventEnginer(3000*time.Millisecond, &testStore{
+		callback: func(ei Event, opresult string) {
+			switch opresult {
+			case hookError:
+				errorcnt++
+			case hookSuccess:
+
+			case storeOne:
+				atomic.AddInt64(&storecnt, 1)
+			}
+		},
+	})
+	engine.ListenManager().Add(server.URL, "typ_test", "")
+	engine.Start()
+	for i := 0; i < b.N; i++ {
+		engine.Put(Event{Eid: "id_" + strconv.Itoa(i), Etype: "typ_test", Action: "action_test"})
+	}
+	engine.Stop()
+	if storecnt != int64(b.N) {
+		b.Errorf("事件存储数量错误:%d/%d", storecnt, b.N)
 	}
 }

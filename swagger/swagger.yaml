@@ -3,26 +3,26 @@ consumes:
 definitions:
   AddListenPayload:
     example:
-      action: Vero et illum ducimus.
-      etype: Quia perferendis nemo eligendi.
-      from: Molestiae voluptates sed.
-      hookurl: Mrs. Ron Steuber
+      action: Dolore unde placeat rem tempore dolorum eius.
+      etype: Vero et illum ducimus.
+      from: Quia perferendis nemo eligendi.
+      hookurl: Dorothea Gleichner PhD
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Vero et illum ducimus.
+        example: Dolore unde placeat rem tempore dolorum eius.
         type: string
       etype:
         description: 事件类型
-        example: Quia perferendis nemo eligendi.
+        example: Vero et illum ducimus.
         type: string
       from:
         description: 注册事件监听的服务器标识
-        example: Molestiae voluptates sed.
+        example: Quia perferendis nemo eligendi.
         type: string
       hookurl:
         description: 钩子url
-        example: Mrs. Ron Steuber
+        example: Dorothea Gleichner PhD
         pattern: ^https?://((\w)+.?)+/(\w+)$
         type: string
     required:
@@ -46,7 +46,7 @@ definitions:
     description: 事件监听信息 (default view)
     example:
       eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
+      endTime: 1986-09-12T06:55:11+08:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
@@ -59,7 +59,7 @@ definitions:
         type: string
       endTime:
         description: 执行结束时间
-        example: 1986-09-12T07:55:11+09:00
+        example: 1986-09-12T06:55:11+08:00
         format: date-time
         type: string
       error:
@@ -98,14 +98,14 @@ definitions:
       (default view)
     example:
     - eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
+      endTime: 1986-09-12T06:55:11+08:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
       startTime: 1973-10-08T22:40:23+08:00
       success: false
     - eid: Quia architecto.
-      endTime: 1986-09-12T07:55:11+09:00
+      endTime: 1986-09-12T06:55:11+08:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
@@ -276,8 +276,8 @@ definitions:
       action: Quam ut.
       etype: Optio dicta molestias.
       from: Ut non et.
-      occtime: Officia aperiam est consequatur.
-      params: true
+      occtime: 1980-08-20T13:58:33+08:00
+      params: false
     properties:
       action:
         description: 事件行为
@@ -293,11 +293,12 @@ definitions:
         type: string
       occtime:
         description: 事件发生时间
-        example: Officia aperiam est consequatur.
+        example: 1980-08-20T13:58:33+08:00
+        format: date-time
         type: string
       params:
         description: 事件发生时间
-        example: true
+        example: false
     required:
     - etype
     - action
@@ -306,31 +307,32 @@ definitions:
     type: object
   PutEventPayload:
     example:
-      action: Dolorem quis dolorem perferendis saepe neque.
-      etype: Id tenetur ea sapiente eum commodi.
-      from: Est voluptas dolorum qui dolore unde.
-      occtime: Rem tempore.
-      params: 1977-05-08T18:42:53+08:00
+      action: Consequatur ea dolores temporibus dolorem quis.
+      etype: Perferendis saepe neque qui id tenetur ea.
+      from: Eum commodi molestiae est.
+      occtime: 1994-12-09T08:49:58+08:00
+      params: 33c27e78-73e7-4894-8f74-8f71b5f23615
     properties:
       action:
         description: 事件行为
-        example: Dolorem quis dolorem perferendis saepe neque.
+        example: Consequatur ea dolores temporibus dolorem quis.
         type: string
       etype:
         description: 事件类型
-        example: Id tenetur ea sapiente eum commodi.
+        example: Perferendis saepe neque qui id tenetur ea.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Est voluptas dolorum qui dolore unde.
+        example: Eum commodi molestiae est.
         type: string
       occtime:
         description: 事件发生时间
-        example: Rem tempore.
+        example: 1994-12-09T08:49:58+08:00
+        format: date-time
         type: string
       params:
         description: 事件发生时间
-        example: 1977-05-08T18:42:53+08:00
+        example: 33c27e78-73e7-4894-8f74-8f71b5f23615
     required:
     - etype
     - action
@@ -339,26 +341,26 @@ definitions:
     type: object
   UpdateListenPayload:
     example:
-      action: Et inventore rem ut eius sunt.
-      etype: Unde eaque odio officiis.
-      from: Eos delectus in vero et.
-      hookurl: Pariatur pariatur rerum et nulla magni magni.
+      action: Labore ut.
+      etype: Modi et inventore rem ut.
+      from: Sunt enim.
+      hookurl: Eaque odio officiis rerum eos delectus.
     properties:
       action:
         description: 事件行为,不设置该项则注册监听所有行为变化
-        example: Et inventore rem ut eius sunt.
+        example: Labore ut.
         type: string
       etype:
         description: 事件类型
-        example: Unde eaque odio officiis.
+        example: Modi et inventore rem ut.
         type: string
       from:
         description: 产生事件的服务器标识
-        example: Eos delectus in vero et.
+        example: Sunt enim.
         type: string
       hookurl:
         description: 钩子url
-        example: Pariatur pariatur rerum et nulla magni magni.
+        example: Eaque odio officiis rerum eos delectus.
         type: string
     required:
     - etype

@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
+// --out=E:\go\src\github.com\yinbaoqiang\goadame
 // --version=v1.2.0-dirty
 
 package app
@@ -15,6 +15,7 @@ import (
 	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // HookAnalysisContext provides the analysis hook action context.
@@ -193,7 +194,7 @@ type postEventPayload struct {
 	// 产生事件的服务器标识
 	From *string `form:"from,omitempty" json:"from,omitempty" xml:"from,omitempty"`
 	// 事件发生时间
-	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	Occtime *time.Time `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
 	// 事件发生时间
 	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
 }
@@ -242,7 +243,7 @@ type PostEventPayload struct {
 	// 产生事件的服务器标识
 	From string `form:"from" json:"from" xml:"from"`
 	// 事件发生时间
-	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	Occtime *time.Time `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
 	// 事件发生时间
 	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
 }
@@ -314,7 +315,7 @@ type putEventPayload struct {
 	// 产生事件的服务器标识
 	From *string `form:"from,omitempty" json:"from,omitempty" xml:"from,omitempty"`
 	// 事件发生时间
-	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	Occtime *time.Time `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
 	// 事件发生时间
 	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
 }
@@ -363,7 +364,7 @@ type PutEventPayload struct {
 	// 产生事件的服务器标识
 	From string `form:"from" json:"from" xml:"from"`
 	// 事件发生时间
-	Occtime *string `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
+	Occtime *time.Time `form:"occtime,omitempty" json:"occtime,omitempty" xml:"occtime,omitempty"`
 	// 事件发生时间
 	Params *interface{} `form:"params,omitempty" json:"params,omitempty" xml:"params,omitempty"`
 }

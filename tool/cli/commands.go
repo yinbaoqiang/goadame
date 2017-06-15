@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
+// --out=E:\go\src\github.com\yinbaoqiang\goadame
 // --version=v1.2.0-dirty
 
 package cli
@@ -127,10 +127,10 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "action": "Vero et illum ducimus.",
-   "etype": "Quia perferendis nemo eligendi.",
-   "from": "Molestiae voluptates sed.",
-   "hookurl": "Mrs. Ron Steuber"
+   "action": "Dolore unde placeat rem tempore dolorum eius.",
+   "etype": "Vero et illum ducimus.",
+   "from": "Quia perferendis nemo eligendi.",
+   "hookurl": "Dorothea Gleichner PhD"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -191,8 +191,8 @@ Payload example:
    "action": "Quam ut.",
    "etype": "Optio dicta molestias.",
    "from": "Ut non et.",
-   "occtime": "Officia aperiam est consequatur.",
-   "params": true
+   "occtime": "1980-08-20T13:58:33+08:00",
+   "params": false
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -213,11 +213,11 @@ Payload example:
 Payload example:
 
 {
-   "action": "Dolorem quis dolorem perferendis saepe neque.",
-   "etype": "Id tenetur ea sapiente eum commodi.",
-   "from": "Est voluptas dolorum qui dolore unde.",
-   "occtime": "Rem tempore.",
-   "params": "1977-05-08T18:42:53+08:00"
+   "action": "Consequatur ea dolores temporibus dolorem quis.",
+   "etype": "Perferendis saepe neque qui id tenetur ea.",
+   "from": "Eum commodi molestiae est.",
+   "occtime": "1994-12-09T08:49:58+08:00",
+   "params": "d2676f8c-be7c-4473-a5e6-9095bada9355"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -252,10 +252,10 @@ Payload example:
 Payload example:
 
 {
-   "action": "Et inventore rem ut eius sunt.",
-   "etype": "Unde eaque odio officiis.",
-   "from": "Eos delectus in vero et.",
-   "hookurl": "Pariatur pariatur rerum et nulla magni magni."
+   "action": "Labore ut.",
+   "etype": "Modi et inventore rem ut.",
+   "from": "Sunt enim.",
+   "hookurl": "Eaque odio officiis rerum eos delectus."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}

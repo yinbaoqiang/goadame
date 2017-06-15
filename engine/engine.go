@@ -81,7 +81,7 @@ func (e *eventEngine) work() {
 
 	for ei := range e.echan {
 
-		if ei.Info.Etype != "" {
+		if ei.Etype != "" {
 			e.one(ei)
 		}
 
@@ -93,17 +93,17 @@ func (e *eventEngine) one(ei Event) {
 	e.wg.Add(1)
 	go e.storeOne(ei)
 	// 查询事件监听
-	hu := e.lm.GetAll(ei.Info.Etype, ei.Info.Action)
+	hu := e.lm.GetAll(ei.Etype, ei.Action)
 
 	for _, h := range hu {
 		e.wg.Add(1)
 		// 加入调用队列
-		//	fmt.Printf("%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, h.url)
+		//	fmt.Printf("%s:%s=>%s\n", ei.Etype, ei.Action, h.url)
 		nh := h
 		nh.put(func() {
 			defer e.wg.Done()
 			// 执行钩子回调
-			//	fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, nh.url)
+			//	fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Etype, ei.Action, nh.url)
 			e.hook(nh.url, ei)
 		})
 
@@ -183,5 +183,5 @@ func (e *eventEngine) hookSuccess(url string, ei Event, start, end time.Time) {
 }
 func (e *eventEngine) storeOne(ei Event) {
 	defer e.wg.Done()
-	e.store.StoreOne(ei)
+	e.store.SaveEvent(ei)
 }

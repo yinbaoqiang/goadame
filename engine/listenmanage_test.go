@@ -23,7 +23,7 @@ func Test_listenManage1(t *testing.T) {
 		args args
 	}{
 		// TODO: Add test cases.
-		{name: "测试1_1", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
+		{name: "测试1_1", args: args{etype: "typ_1", action: "", url: "http://test/test1"}},
 		{name: "测试1_1_0", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
 		{name: "测试1_1_1", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
 		{name: "测试1_1_2", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
@@ -52,22 +52,6 @@ func Test_listenManage1(t *testing.T) {
 			}
 		})
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			lm.Remove(tt.args.url, tt.args.etype, tt.args.action)
-			us := lm.GetAll(tt.args.etype, tt.args.action)
-			r := false
-			for _, u := range us {
-				if u.url == tt.args.url {
-					r = true
-					break
-				}
-			}
-			if r {
-				t.Errorf("%s测试remove错误", tt.name)
-			}
-		})
-	}
 
 }
 func Test_listenManage2(t *testing.T) {
@@ -88,13 +72,15 @@ func Test_listenManage2(t *testing.T) {
 		args args
 	}{
 		// TODO: Add test cases.
-		{name: "测试1_0", args: args{etype: "typ_1", action: "", url: "http://test/test1_0"}},
 		{name: "测试1_1", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
 		{name: "测试1_2", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1_2"}},
 		{name: "测试1_3", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1_3"}},
 		{name: "测试1_4", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1_4"}},
 		{name: "测试2", args: args{etype: "typ_2", action: "action_2", url: "http://test/test2"}},
 		{name: "测试3", args: args{etype: "typ_1", action: "action_3", url: "http://test/test3"}},
+		{name: "测试1_5", args: args{etype: "typ_1", action: "action_2", url: "http://test/test1_0"}},
+		{name: "测试1_1", args: args{etype: "typ_1", action: "action_1", url: "http://test/test1"}},
+		{name: "测试1_0", args: args{etype: "typ_1", action: "", url: "http://test/test1_0"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

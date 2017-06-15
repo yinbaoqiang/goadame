@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
+// --out=E:\go\src\github.com\yinbaoqiang\goadame
 // --version=v1.2.0-dirty
 
 package app
@@ -290,10 +290,10 @@ func MountPublicController(service *goa.Service, ctrl PublicController) {
 	service.Mux.Handle("GET", "/ui/*filepath", ctrl.MuxHandler("serve", h, nil))
 	service.LogInfo("mount", "ctrl", "Public", "files", "dist", "route", "GET /ui/*filepath")
 
-	h = ctrl.FileHandler("/ui/", "dist/index.html")
+	h = ctrl.FileHandler("/ui/", "dist\\index.html")
 	h = handlePublicOrigin(h)
 	service.Mux.Handle("GET", "/ui/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "dist/index.html", "route", "GET /ui/")
+	service.LogInfo("mount", "ctrl", "Public", "files", "dist\\index.html", "route", "GET /ui/")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.

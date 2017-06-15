@@ -106,19 +106,22 @@ func (e *lelem) remove(action, url string) {
 		hu.remove(url)
 	}
 }
+
 func (e *lelem) put(action, url string) {
+	if e.all.exists(url) {
+		return
+	}
 	if action == "" {
-		if e.all.exists(url) {
-			return
-		}
 		e.lck.Lock()
 		defer e.lck.Unlock()
-		if e.all.exists(url) {
-			return
-		}
 		//e.all = append(e.all, createHook(url))
 		e.all.add(url)
 		//	fmt.Printf("e.all add:%#v\n", e.all[0])
+		for _, v := range e.action {
+			if v.exists(url) {
+				v.remove(url)
+			}
+		}
 		return
 	}
 
@@ -188,14 +191,27 @@ func (h *hook) run() {
 		}
 	}
 }
+
+var (
+	hookMap = make(map[string]*hook)
+	hmlck   sync.Mutex
+)
+
 func createHook(url string) *hook {
+	hmlck.Lock()
+	defer hmlck.Unlock()
+	h, ok := hookMap[url]
+	if ok {
+		return h
+	}
 	l := &sync.Mutex{}
-	h := &hook{
+	h = &hook{
 		url:       url,
 		waitQueue: list.New(),
 		cond:      sync.NewCond(l),
 	}
 	go h.run()
+	hookMap[url] = h
 	return h
 }
 
