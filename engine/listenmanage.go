@@ -3,7 +3,6 @@ package engine
 import "sync"
 
 import "container/list"
-import "fmt"
 
 // ListenManager 监听管理器
 type ListenManager interface {
@@ -50,7 +49,7 @@ func (e *lelem) getHooks(action string) (out *hookURL) {
 
 	hu, ok := e.action[action]
 	if !ok {
-		fmt.Println("nil")
+		//fmt.Println("nil")
 		return
 	}
 
@@ -119,7 +118,7 @@ func (e *lelem) put(action, url string) {
 		}
 		//e.all = append(e.all, createHook(url))
 		e.all.add(url)
-		fmt.Printf("e.all add:%#v\n", e.all[0])
+		//	fmt.Printf("e.all add:%#v\n", e.all[0])
 		return
 	}
 

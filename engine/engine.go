@@ -3,7 +3,6 @@ package engine
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,9 +27,21 @@ type EventEnginer interface {
 }
 
 // CreateEventEnginer 创建事件引擎
-func CreateEventEnginer() EventEnginer {
+func CreateEventEnginer(timeOut time.Duration, store ...Storer) EventEnginer {
+	s := defaultStore
+	if len(store) == 1 {
+		s = store[0]
+	}
+	if s == nil {
+		panic("没有注册store ,请使用RegStorer 注册.或传入store参数")
+	}
+	if timeOut == 0 {
+		timeOut = 3 * time.Second
+	}
 	return &eventEngine{
-		lm: createListenManager(),
+		lm:      createListenManager(),
+		store:   s,
+		timeOut: timeOut,
 	}
 }
 
@@ -39,18 +50,23 @@ type eventEngine struct {
 
 	echan chan Event
 	wg    sync.WaitGroup
+
+	store   Storer
+	timeOut time.Duration
 }
 
 func (e *eventEngine) ListenManager() ListenManager {
 	return e.lm
 }
 
-func (e *eventEngine) Put(ei Event) error {
-	select {
-	case e.echan <- ei:
-	default:
-		return errors.New("事件引擎已经关闭或未开启")
-	}
+func (e *eventEngine) Put(ei Event) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("事件引擎已经关闭或未开启:%v", e)
+		}
+	}()
+	e.echan <- ei
+	e.wg.Add(1)
 	return nil
 }
 func (e *eventEngine) Start() {
@@ -64,6 +80,7 @@ func (e *eventEngine) Stop() {
 func (e *eventEngine) work() {
 
 	for ei := range e.echan {
+
 		if ei.Info.Etype != "" {
 			e.one(ei)
 		}
@@ -71,7 +88,9 @@ func (e *eventEngine) work() {
 	}
 }
 func (e *eventEngine) one(ei Event) {
+	defer e.wg.Done()
 	// 持久化事件
+	e.wg.Add(1)
 	go e.storeOne(ei)
 	// 查询事件监听
 	hu := e.lm.GetAll(ei.Info.Etype, ei.Info.Action)
@@ -79,11 +98,12 @@ func (e *eventEngine) one(ei Event) {
 	for _, h := range hu {
 		e.wg.Add(1)
 		// 加入调用队列
-		fmt.Printf("%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, h.url)
+		//	fmt.Printf("%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, h.url)
 		nh := h
 		nh.put(func() {
+			defer e.wg.Done()
 			// 执行钩子回调
-			fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, nh.url)
+			//	fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, nh.url)
 			e.hook(nh.url, ei)
 		})
 
@@ -119,11 +139,10 @@ func (e *eventEngine) _sendEvent(ctx context.Context, url string, ei Event) erro
 // 调用监听钩子
 func (e *eventEngine) hook(url string, ei Event) {
 
-	defer e.wg.Done()
 	// 记录开始时间
 	start := time.Now()
 	rchan := make(chan error, 1)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), e.timeOut)
 	defer cancel()
 	go func() {
 		defer close(rchan)
@@ -139,29 +158,30 @@ func (e *eventEngine) hook(url string, ei Event) {
 	case <-ctx.Done():
 		if ctx.Err() != nil {
 			// 超时失败
-			e.hookError(url, ei, ctx.Err(), start)
+			e.hookError(url, ei, ctx.Err(), start, time.Now())
 			return
 
 		}
 	case err := <-rchan:
 		if err != nil {
-			e.hookError(url, ei, err, start)
+			e.hookError(url, ei, err, start, time.Now())
 			return
 		}
-		e.hookSuccess(url, ei, start)
+		e.hookSuccess(url, ei, start, time.Now())
 	}
 
 }
 
 // 存储钩子回调事件失败
-func (e *eventEngine) hookError(url string, ei Event, err error, start time.Time) {
-	fmt.Printf("hookError%s:%s=>%s\n%v", ei.Info.Etype, ei.Info.Action, url, err)
+func (e *eventEngine) hookError(url string, ei Event, err error, start, end time.Time) {
+	e.store.HookError(url, ei, err, start, end)
 }
 
 // 存储钩子回调事件成功
-func (e *eventEngine) hookSuccess(url string, ei Event, start time.Time) {
-	fmt.Printf("hookEhookSuccessrror%s:%s=>%s\n", ei.Info.Etype, ei.Info.Action, url)
+func (e *eventEngine) hookSuccess(url string, ei Event, start, end time.Time) {
+	e.store.HookSuccess(url, ei, start, end)
 }
 func (e *eventEngine) storeOne(ei Event) {
-
+	defer e.wg.Done()
+	e.store.StoreOne(ei)
 }

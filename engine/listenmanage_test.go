@@ -113,7 +113,7 @@ func Test_listenManage2(t *testing.T) {
 		})
 	}
 	us := lm.GetAll("typ_1", "abc")
-	if us != nil {
+	if us == nil {
 		t.Error("测试错误")
 		return
 	}
