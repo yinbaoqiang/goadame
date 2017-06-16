@@ -10,8 +10,8 @@ type HookInfo struct {
 	ID, Etype, Action, URL string
 }
 
-// Storer 数据存储
-type Storer interface {
+// EventStorer 数据存储
+type EventStorer interface {
 	// 存储钩子回调事件失败
 	HookError(url string, ei Event, err error, start, end time.Time)
 	// 存储钩子回调事件成功
@@ -24,14 +24,14 @@ type Storer interface {
 	// LoadAllHooks() []HookInfo
 }
 
-var defaultStore Storer
+var defaultStore EventStorer
 
-// RegStorer 注册store驱动
-func RegStorer(store Storer) {
+// RegEventStorer 注册store驱动
+func RegEventStorer(store EventStorer) {
 	defaultStore = store
 }
 
-// Storer 数据存储
+// showStore 数据存储
 type showStore struct {
 }
 

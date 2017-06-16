@@ -27,7 +27,7 @@ type EventEnginer interface {
 }
 
 // CreateEventEnginer 创建事件引擎
-func CreateEventEnginer(timeOut time.Duration, store ...Storer) EventEnginer {
+func CreateEventEnginer(timeOut time.Duration, store ...EventStorer) EventEnginer {
 	s := defaultStore
 	if len(store) == 1 {
 		s = store[0]
@@ -51,7 +51,7 @@ type eventEngine struct {
 	echan chan Event
 	wg    sync.WaitGroup
 
-	store   Storer
+	store   EventStorer
 	timeOut time.Duration
 }
 
