@@ -311,7 +311,7 @@ definitions:
       etype: Perferendis saepe neque qui id tenetur ea.
       from: Eum commodi molestiae est.
       occtime: 1994-12-09T08:49:58+08:00
-      params: 33c27e78-73e7-4894-8f74-8f71b5f23615
+      params: 68bcb8dc-4778-4a00-8a9a-14fe0d9f08d1
     properties:
       action:
         description: 事件行为
@@ -332,7 +332,7 @@ definitions:
         type: string
       params:
         description: 事件发生时间
-        example: 33c27e78-73e7-4894-8f74-8f71b5f23615
+        example: 68bcb8dc-4778-4a00-8a9a-14fe0d9f08d1
     required:
     - etype
     - action

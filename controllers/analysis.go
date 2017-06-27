@@ -33,6 +33,6 @@ func (c *AnalysisController) List(ctx *app.ListAnalysisContext) error {
 	// Put your logic here
 
 	// AnalysisController_List: end_implement
-	res := &app.AntRegList{}
+	res := &app.AntEventHistoryList{}
 	return ctx.OK(res)
 }
