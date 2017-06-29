@@ -34,10 +34,11 @@ func main() {
 	c5 := controllers.NewSwaggerController(service)
 	app.MountSwaggerController(service, c5)
 
+	// 初始化应用
+	initApp([]string{"127.0.0.1"}, 3)
 	// 启动事件引擎
-
 	engine.DefaultEnginer().Start()
-	defer engine.DefaultEnginer().stop()
+	defer engine.DefaultEnginer().Stop()
 	// Start service
 	if err := service.ListenAndServe(":8080"); err != nil {
 		service.LogError("startup", "err", err)

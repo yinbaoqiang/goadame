@@ -31,7 +31,7 @@ func (c *ListenController) Add(ctx *app.AddListenContext) error {
 		Hookurl: ctx.Payload.Hookurl,
 	}
 	// Put your logic here
-	err = store.ListenStore.Add(l)
+	err = store.ListenStore().Add(l)
 	// ListenController_Add: end_implement
 	if err != nil {
 		msg := "新增监听失败:" + err.Error()
@@ -68,12 +68,13 @@ func (c *ListenController) List(ctx *app.ListListenContext) error {
 	}
 
 	res := &app.AntListenList{}
-	err := store.ListenStore.List(action, etype, page, count, &res.Total, &res.List)
+	liss, err := store.ListenStore().List(action, etype, page, count, &res.Total)
 	// ListenController_List: end_implement
 	if err != nil {
 		msg := "新增监听失败:" + err.Error()
 		return ctx.InternalServerError(&app.AntError{Msg: &msg})
 	}
+	res.List = liss
 	return ctx.OK(res)
 }
 
@@ -87,7 +88,7 @@ func (c *ListenController) Remove(ctx *app.RemoveListenContext) error {
 	}
 	// Put your logic here
 
-	err := store.ListenStore.Rmove(rid)
+	err := store.ListenStore().Rmove(rid)
 	// ListenController_List: end_implement
 	if err != nil {
 		msg := "删除监听失败:" + err.Error()
@@ -110,7 +111,7 @@ func (c *ListenController) Update(ctx *app.UpdateListenContext) error {
 	}
 	// Put your logic here
 	// Put your logic here
-	err := store.ListenStore.Update(l)
+	err := store.ListenStore().Update(l)
 	// ListenController_Add: end_implement
 	if err != nil {
 		msg := "新增监听失败:" + err.Error()
