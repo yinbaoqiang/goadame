@@ -3,6 +3,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/yinbaoqiang/goadame/app"
@@ -33,12 +35,14 @@ func main() {
 	app.MountPublicController(service, c4)
 	c5 := controllers.NewSwaggerController(service)
 	app.MountSwaggerController(service, c5)
-
 	// 初始化应用
-	initApp([]string{"127.0.0.1"}, 3)
+	err := initEngine([]string{"localhost:2379"}, 10)
 	// 启动事件引擎
-	engine.DefaultEnginer().Start()
-	defer engine.DefaultEnginer().Stop()
+	if err != nil {
+		service.LogError("启动事件引擎失败:%v", err)
+		os.Exit(1)
+	}
+	defer engine.Stop()
 	// Start service
 	if err := service.ListenAndServe(":8080"); err != nil {
 		service.LogError("startup", "err", err)

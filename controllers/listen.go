@@ -37,7 +37,8 @@ func (c *ListenController) Add(ctx *app.AddListenContext) error {
 		msg := "新增监听失败:" + err.Error()
 		return ctx.InternalServerError(&app.AntError{Msg: &msg})
 	}
-	res := &app.AntRegResult{}
+	res := &app.AntRegResult{OK: true}
+
 	return ctx.OK(res)
 }
 
@@ -45,20 +46,15 @@ func (c *ListenController) Add(ctx *app.AddListenContext) error {
 func (c *ListenController) List(ctx *app.ListListenContext) error {
 	// ListenController_List: start_implement
 
-	count, page := 0, 1
-	if ctx.Page != nil {
-		page = *ctx.Page
-	}
+	count := 0
+
 	if ctx.Count != nil {
 		count = *ctx.Count
-	}
-	if page < 1 {
-		page = 1
 	}
 	if count < 1 {
 		count = 1
 	}
-	action, etype := "", ""
+	action, etype, pid := "", "", ""
 	if ctx.Action != nil {
 		action = *ctx.Action
 	}
@@ -66,15 +62,19 @@ func (c *ListenController) List(ctx *app.ListListenContext) error {
 	if ctx.Etype != nil {
 		etype = *ctx.Etype
 	}
+	if ctx.Previd != nil {
+		pid = *ctx.Previd
+	}
 
 	res := &app.AntListenList{}
-	liss, err := store.ListenStore().List(action, etype, page, count, &res.Total)
+	total, liss, err := store.ListenStore().List(etype, action, pid, count)
 	// ListenController_List: end_implement
 	if err != nil {
 		msg := "新增监听失败:" + err.Error()
 		return ctx.InternalServerError(&app.AntError{Msg: &msg})
 	}
 	res.List = liss
+	res.Total = total
 	return ctx.OK(res)
 }
 
@@ -101,6 +101,11 @@ func (c *ListenController) Remove(ctx *app.RemoveListenContext) error {
 
 // Update runs the update action.
 func (c *ListenController) Update(ctx *app.UpdateListenContext) error {
+	err := ctx.Payload.Validate()
+	if err != nil {
+		msg := "参数错误:" + err.Error()
+		return ctx.BadRequest(&app.AntError{Msg: &msg})
+	}
 	// ListenController_Update: start_implement
 	l := app.AntListen{
 		Rid:     ctx.Rid,
@@ -111,13 +116,13 @@ func (c *ListenController) Update(ctx *app.UpdateListenContext) error {
 	}
 	// Put your logic here
 	// Put your logic here
-	err := store.ListenStore().Update(l)
+	err = store.ListenStore().Update(l)
 	// ListenController_Add: end_implement
 	if err != nil {
 		msg := "新增监听失败:" + err.Error()
 		return ctx.InternalServerError(&app.AntError{Msg: &msg})
 	}
 	// ListenController_Update: end_implement
-	res := &app.AntRegResult{}
+	res := &app.AntRegResult{OK: true}
 	return ctx.OK(res)
 }

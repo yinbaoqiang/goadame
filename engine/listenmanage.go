@@ -1,8 +1,10 @@
 package engine
 
-import "sync"
-
-import "container/list"
+import (
+	"container/list"
+	"fmt"
+	"sync"
+)
 
 // ListenManager 监听管理器
 type ListenManager interface {
@@ -108,6 +110,7 @@ func (e *lelem) remove(action, url string) {
 }
 
 func (e *lelem) put(action, url string) {
+	fmt.Printf("put1======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 	if e.all.exists(url) {
 		return
 	}
@@ -116,7 +119,7 @@ func (e *lelem) put(action, url string) {
 		defer e.lck.Unlock()
 		//e.all = append(e.all, createHook(url))
 		e.all.add(url)
-		//	fmt.Printf("e.all add:%#v\n", e.all[0])
+		fmt.Printf("e.all add:%#v\n", e.all[0])
 		for _, v := range e.action {
 			if v.exists(url) {
 				v.remove(url)
@@ -124,9 +127,10 @@ func (e *lelem) put(action, url string) {
 		}
 		return
 	}
-
+	fmt.Printf("put2======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 	hu := e._getLckHooks(action)
 	if hu == nil {
+		fmt.Printf("put3======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 		e.lck.Lock()
 		hu = e._getHooks(action)
 		if hu == nil {
@@ -139,14 +143,18 @@ func (e *lelem) put(action, url string) {
 		return
 	}
 	if hu.exists(url) {
+		fmt.Printf("put4======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 		return
 	}
 	e.lck.Lock()
 	defer e.lck.Unlock()
 	if hu.exists(url) {
+		fmt.Printf("put5======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 		return
 	}
 	*hu = append(*hu, createHook(url))
+
+	fmt.Printf("======新加入或修改:%s,%s,%s\n", e.etype, action, url)
 }
 
 type hook struct {

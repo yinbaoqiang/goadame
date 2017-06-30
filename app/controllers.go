@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package app
@@ -39,6 +39,8 @@ type AnalysisController interface {
 func MountAnalysisController(service *goa.Service, ctrl AnalysisController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/v1/admin/event/analysis/hook/:eid", ctrl.MuxHandler("preflight", handleAnalysisOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/v1/admin/event/analysis", ctrl.MuxHandler("preflight", handleAnalysisOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -52,6 +54,7 @@ func MountAnalysisController(service *goa.Service, ctrl AnalysisController) {
 		}
 		return ctrl.Hook(rctx)
 	}
+	h = handleAnalysisOrigin(h)
 	service.Mux.Handle("GET", "/v1/admin/event/analysis/hook/:eid", ctrl.MuxHandler("hook", h, nil))
 	service.LogInfo("mount", "ctrl", "Analysis", "action", "Hook", "route", "GET /v1/admin/event/analysis/hook/:eid")
 
@@ -67,8 +70,34 @@ func MountAnalysisController(service *goa.Service, ctrl AnalysisController) {
 		}
 		return ctrl.List(rctx)
 	}
+	h = handleAnalysisOrigin(h)
 	service.Mux.Handle("GET", "/v1/admin/event/analysis", ctrl.MuxHandler("list", h, nil))
 	service.LogInfo("mount", "ctrl", "Analysis", "action", "List", "route", "GET /v1/admin/event/analysis")
+}
+
+// handleAnalysisOrigin applies the CORS response headers corresponding to the origin.
+func handleAnalysisOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Allow-Credentials", "false")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "X-Shared-Secret")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
 }
 
 // EventController is the controller interface for the Event actions.
@@ -82,6 +111,8 @@ type EventController interface {
 func MountEventController(service *goa.Service, ctrl EventController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/v1/event", ctrl.MuxHandler("preflight", handleEventOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/v1/event/:eid", ctrl.MuxHandler("preflight", handleEventOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -101,6 +132,7 @@ func MountEventController(service *goa.Service, ctrl EventController) {
 		}
 		return ctrl.Post(rctx)
 	}
+	h = handleEventOrigin(h)
 	service.Mux.Handle("POST", "/v1/event", ctrl.MuxHandler("post", h, unmarshalPostEventPayload))
 	service.LogInfo("mount", "ctrl", "Event", "action", "Post", "route", "POST /v1/event")
 
@@ -122,8 +154,34 @@ func MountEventController(service *goa.Service, ctrl EventController) {
 		}
 		return ctrl.Put(rctx)
 	}
+	h = handleEventOrigin(h)
 	service.Mux.Handle("PUT", "/v1/event/:eid", ctrl.MuxHandler("put", h, unmarshalPutEventPayload))
 	service.LogInfo("mount", "ctrl", "Event", "action", "Put", "route", "PUT /v1/event/:eid")
+}
+
+// handleEventOrigin applies the CORS response headers corresponding to the origin.
+func handleEventOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Allow-Credentials", "false")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "X-Shared-Secret")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
 }
 
 // unmarshalPostEventPayload unmarshals the request body into the context request data Payload field.
@@ -169,6 +227,8 @@ type ListenController interface {
 func MountListenController(service *goa.Service, ctrl ListenController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/v1/admin/listen", ctrl.MuxHandler("preflight", handleListenOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/v1/admin/listen/:rid", ctrl.MuxHandler("preflight", handleListenOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -188,6 +248,7 @@ func MountListenController(service *goa.Service, ctrl ListenController) {
 		}
 		return ctrl.Add(rctx)
 	}
+	h = handleListenOrigin(h)
 	service.Mux.Handle("POST", "/v1/admin/listen", ctrl.MuxHandler("add", h, unmarshalAddListenPayload))
 	service.LogInfo("mount", "ctrl", "Listen", "action", "Add", "route", "POST /v1/admin/listen")
 
@@ -203,6 +264,7 @@ func MountListenController(service *goa.Service, ctrl ListenController) {
 		}
 		return ctrl.List(rctx)
 	}
+	h = handleListenOrigin(h)
 	service.Mux.Handle("GET", "/v1/admin/listen", ctrl.MuxHandler("list", h, nil))
 	service.LogInfo("mount", "ctrl", "Listen", "action", "List", "route", "GET /v1/admin/listen")
 
@@ -218,6 +280,7 @@ func MountListenController(service *goa.Service, ctrl ListenController) {
 		}
 		return ctrl.Remove(rctx)
 	}
+	h = handleListenOrigin(h)
 	service.Mux.Handle("DELETE", "/v1/admin/listen/:rid", ctrl.MuxHandler("remove", h, nil))
 	service.LogInfo("mount", "ctrl", "Listen", "action", "Remove", "route", "DELETE /v1/admin/listen/:rid")
 
@@ -239,8 +302,34 @@ func MountListenController(service *goa.Service, ctrl ListenController) {
 		}
 		return ctrl.Update(rctx)
 	}
+	h = handleListenOrigin(h)
 	service.Mux.Handle("PUT", "/v1/admin/listen/:rid", ctrl.MuxHandler("update", h, unmarshalUpdateListenPayload))
 	service.LogInfo("mount", "ctrl", "Listen", "action", "Update", "route", "PUT /v1/admin/listen/:rid")
+}
+
+// handleListenOrigin applies the CORS response headers corresponding to the origin.
+func handleListenOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Allow-Credentials", "false")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "X-Shared-Secret")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
 }
 
 // unmarshalAddListenPayload unmarshals the request body into the context request data Payload field.
@@ -290,10 +379,10 @@ func MountPublicController(service *goa.Service, ctrl PublicController) {
 	service.Mux.Handle("GET", "/ui/*filepath", ctrl.MuxHandler("serve", h, nil))
 	service.LogInfo("mount", "ctrl", "Public", "files", "dist", "route", "GET /ui/*filepath")
 
-	h = ctrl.FileHandler("/ui/", "dist\\index.html")
+	h = ctrl.FileHandler("/ui/", "dist/index.html")
 	h = handlePublicOrigin(h)
 	service.Mux.Handle("GET", "/ui/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "dist\\index.html", "route", "GET /ui/")
+	service.LogInfo("mount", "ctrl", "Public", "files", "dist/index.html", "route", "GET /ui/")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.

@@ -35,6 +35,7 @@ var RegResultMedia = apidsl.MediaType("vnd.ant.reg.result+json", func() {
 	apidsl.Attributes(func() { // Attributes define the media type shape.
 		apidsl.Attribute("ok", design.Boolean, "成功标识")
 		apidsl.Attribute("msg", design.String, "如果ok=false,失败原因")
+		apidsl.Required("ok")
 
 	})
 	apidsl.View("default", func() { // View defines a rendering of the media type.

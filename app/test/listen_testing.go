@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package test
@@ -333,7 +333,7 @@ func AddListenOKFailed(t goatest.TInterface, ctx context.Context, service *goa.S
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListListenBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, page *int) (http.ResponseWriter, *app.AntError) {
+func ListListenBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, previd *string) (http.ResponseWriter, *app.AntError) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -366,9 +366,9 @@ func ListListenBadRequest(t goatest.TInterface, ctx context.Context, service *go
 		sliceVal := []string{*etype}
 		query["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		query["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		query["previd"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/v1/admin/listen"),
@@ -391,9 +391,9 @@ func ListListenBadRequest(t goatest.TInterface, ctx context.Context, service *go
 		sliceVal := []string{*etype}
 		prms["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		prms["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		prms["previd"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -431,7 +431,7 @@ func ListListenBadRequest(t goatest.TInterface, ctx context.Context, service *go
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, page *int) (http.ResponseWriter, *app.AntError) {
+func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, previd *string) (http.ResponseWriter, *app.AntError) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -464,9 +464,9 @@ func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, se
 		sliceVal := []string{*etype}
 		query["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		query["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		query["previd"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/v1/admin/listen"),
@@ -489,9 +489,9 @@ func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, se
 		sliceVal := []string{*etype}
 		prms["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		prms["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		prms["previd"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -529,7 +529,7 @@ func ListListenInternalServerError(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, page *int) (http.ResponseWriter, *app.AntListenList) {
+func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ListenController, action *string, count *int, etype *string, previd *string) (http.ResponseWriter, *app.AntListenList) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -562,9 +562,9 @@ func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 		sliceVal := []string{*etype}
 		query["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		query["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		query["previd"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/v1/admin/listen"),
@@ -587,9 +587,9 @@ func ListListenOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 		sliceVal := []string{*etype}
 		prms["etype"] = sliceVal
 	}
-	if page != nil {
-		sliceVal := []string{strconv.Itoa(*page)}
-		prms["page"] = sliceVal
+	if previd != nil {
+		sliceVal := []string{*previd}
+		prms["previd"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()

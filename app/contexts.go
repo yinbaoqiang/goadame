@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package app
@@ -531,7 +531,7 @@ type ListListenContext struct {
 	Action *string
 	Count  *int
 	Etype  *string
-	Page   *int
+	Previd *string
 }
 
 // NewListListenContext parses the incoming request URL and body, performs validations and creates the
@@ -569,21 +569,10 @@ func NewListListenContext(ctx context.Context, r *http.Request, service *goa.Ser
 		rawEtype := paramEtype[0]
 		rctx.Etype = &rawEtype
 	}
-	paramPage := req.Params["page"]
-	if len(paramPage) > 0 {
-		rawPage := paramPage[0]
-		if page, err2 := strconv.Atoi(rawPage); err2 == nil {
-			tmp10 := page
-			tmp9 := &tmp10
-			rctx.Page = tmp9
-		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("page", rawPage, "integer"))
-		}
-		if rctx.Page != nil {
-			if *rctx.Page < 1 {
-				err = goa.MergeErrors(err, goa.InvalidRangeError(`page`, *rctx.Page, 1, true))
-			}
-		}
+	paramPrevid := req.Params["previd"]
+	if len(paramPrevid) > 0 {
+		rawPrevid := paramPrevid[0]
+		rctx.Previd = &rawPrevid
 	}
 	return &rctx, err
 }

@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package client

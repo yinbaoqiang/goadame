@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package client
@@ -74,8 +74,8 @@ func ListListenPath() string {
 }
 
 // 获取注册事件监听列表
-func (c *Client) ListListen(ctx context.Context, path string, action *string, count *int, etype *string, page *int) (*http.Response, error) {
-	req, err := c.NewListListenRequest(ctx, path, action, count, etype, page)
+func (c *Client) ListListen(ctx context.Context, path string, action *string, count *int, etype *string, previd *string) (*http.Response, error) {
+	req, err := c.NewListListenRequest(ctx, path, action, count, etype, previd)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (c *Client) ListListen(ctx context.Context, path string, action *string, co
 }
 
 // NewListListenRequest create the request corresponding to the list action endpoint of the listen resource.
-func (c *Client) NewListListenRequest(ctx context.Context, path string, action *string, count *int, etype *string, page *int) (*http.Request, error) {
+func (c *Client) NewListListenRequest(ctx context.Context, path string, action *string, count *int, etype *string, previd *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
@@ -100,9 +100,8 @@ func (c *Client) NewListListenRequest(ctx context.Context, path string, action *
 	if etype != nil {
 		values.Set("etype", *etype)
 	}
-	if page != nil {
-		tmp13 := strconv.Itoa(*page)
-		values.Set("page", tmp13)
+	if previd != nil {
+		values.Set("previd", *previd)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)

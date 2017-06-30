@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package cli
@@ -84,8 +84,8 @@ type (
 		Count int
 		// 事件类型,不设置则查询所有事件类型
 		Etype string
-		// 分页
-		Page        int
+		// 上次查询最后id
+		Previd      string
 		PrettyPrint bool
 	}
 
@@ -217,7 +217,7 @@ Payload example:
    "etype": "Perferendis saepe neque qui id tenetur ea.",
    "from": "Eum commodi molestiae est.",
    "occtime": "1994-12-09T08:49:58+08:00",
-   "params": "08c000f5-76ee-4942-b0f3-8b05756e9c03"
+   "params": "1de9e26c-2a50-4fdc-ac8d-81ec0e438e1f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -649,7 +649,7 @@ func (cmd *ListListenCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ListListen(ctx, path, stringFlagVal("action", cmd.Action), intFlagVal("count", cmd.Count), stringFlagVal("etype", cmd.Etype), intFlagVal("page", cmd.Page))
+	resp, err := c.ListListen(ctx, path, stringFlagVal("action", cmd.Action), intFlagVal("count", cmd.Count), stringFlagVal("etype", cmd.Etype), stringFlagVal("previd", cmd.Previd))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -667,8 +667,8 @@ func (cmd *ListListenCommand) RegisterFlags(cc *cobra.Command, c *client.Client)
 	cc.Flags().IntVar(&cmd.Count, "count", count, `分页数量`)
 	var etype string
 	cc.Flags().StringVar(&cmd.Etype, "etype", etype, `事件类型,不设置则查询所有事件类型`)
-	var page int
-	cc.Flags().IntVar(&cmd.Page, "page", page, `分页`)
+	var previd string
+	cc.Flags().StringVar(&cmd.Previd, "previd", previd, `上次查询最后id`)
 }
 
 // Run makes the HTTP request corresponding to the RemoveListenCommand command.

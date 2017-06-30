@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/yinbaoqiang/goadame/app"
 )
 
 // HookResult 事件
@@ -19,42 +21,47 @@ type HookResult struct {
 type EventEnginer interface {
 	// 获取监听管理器
 	ListenManager() ListenManager
-
 	Put(ei Event) error
-
-	Start()
+	Start() error
 	Stop()
+	SetEventStorer(s EventStorer)
+	SetListenerStore(s ListenerStore)
 }
 
 // CreateEventEnginer 创建事件引擎
-func CreateEventEnginer(timeOut time.Duration, store ...EventStorer) EventEnginer {
-	s := defaultStore
-	if len(store) == 1 {
-		s = store[0]
+func CreateEventEnginer(timeOut time.Duration, store EventStorer, lstore ListenerStore) EventEnginer {
+
+	if store == nil {
+		store = defaultEventStore
 	}
-	if s == nil {
-		panic("没有注册store ,请使用RegStorer 注册.或传入store参数")
+	if lstore == nil {
+		lstore = defaultEventStore
 	}
 	if timeOut == 0 {
 		timeOut = 3 * time.Second
 	}
 	return &eventEngine{
-		lm:      createListenManager(),
-		store:   s,
+		lstore:  lstore,
+		store:   store,
 		timeOut: timeOut,
 	}
 }
 
 type eventEngine struct {
-	lm ListenManager
-
-	echan chan Event
-	wg    sync.WaitGroup
-
+	lm      ListenManager
+	echan   chan Event
+	wg      sync.WaitGroup
+	lstore  ListenerStore
 	store   EventStorer
 	timeOut time.Duration
 }
 
+func (e *eventEngine) SetEventStorer(s EventStorer) {
+	e.store = s
+}
+func (e *eventEngine) SetListenerStore(s ListenerStore) {
+	e.lstore = s
+}
 func (e *eventEngine) ListenManager() ListenManager {
 	return e.lm
 }
@@ -69,9 +76,55 @@ func (e *eventEngine) Put(ei Event) (err error) {
 	e.wg.Add(1)
 	return nil
 }
-func (e *eventEngine) Start() {
+func (e *eventEngine) initListenManager() error {
+	e.lm = createListenManager()
+	ls, err := e.lstore.All()
+	if err != nil {
+		return err
+	}
+	for _, a := range ls {
+		e.addListen(*a)
+	}
+	return nil
+}
+func (e *eventEngine) addListen(lis app.AntListen) {
+	action := ""
+	if lis.Action != nil {
+		action = *lis.Action
+	}
+	e.lm.Add(lis.Hookurl, lis.Etype, action)
+}
+func (e *eventEngine) removeListen(lis app.AntListen) {
+	action := ""
+	if lis.Action != nil {
+		action = *lis.Action
+	}
+	e.lm.Remove(lis.Hookurl, lis.Etype, action)
+}
+func (e *eventEngine) listenWatch() {
+	e.lstore.Watch(func(ctyp ChgType, lis app.AntListen) {
+		fmt.Printf("[%d]%v:%v=>%v\n", ctyp, lis.Etype, lis.Action, lis.Hookurl)
+		switch ctyp {
+		case ChgTypeAdd:
+			e.addListen(lis)
+		case ChgTypeRemove:
+			e.removeListen(lis)
+		case ChgTypeUpdate:
+			e.addListen(lis)
+		default:
+
+		}
+	})
+}
+func (e *eventEngine) Start() error {
 	e.echan = make(chan Event, 10)
+	err := e.initListenManager()
+	if err != nil {
+		return err
+	}
+	e.listenWatch()
 	go e.work()
+	return nil
 }
 func (e *eventEngine) Stop() {
 	close(e.echan)
@@ -150,7 +203,6 @@ func (e *eventEngine) hook(url string, ei Event) {
 		if err != nil {
 			rchan <- err
 		}
-		return
 
 	}()
 

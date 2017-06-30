@@ -46,7 +46,7 @@ definitions:
     description: 事件监听信息 (default view)
     example:
       eid: Quia architecto.
-      endTime: 1986-09-12T06:55:11+08:00
+      endTime: 1986-09-12T07:55:11+09:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
@@ -59,7 +59,7 @@ definitions:
         type: string
       endTime:
         description: 执行结束时间
-        example: 1986-09-12T06:55:11+08:00
+        example: 1986-09-12T07:55:11+09:00
         format: date-time
         type: string
       error:
@@ -98,14 +98,14 @@ definitions:
       (default view)
     example:
     - eid: Quia architecto.
-      endTime: 1986-09-12T06:55:11+08:00
+      endTime: 1986-09-12T07:55:11+09:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
       startTime: 1973-10-08T22:40:23+08:00
       success: false
     - eid: Quia architecto.
-      endTime: 1986-09-12T06:55:11+08:00
+      endTime: 1986-09-12T07:55:11+09:00
       error: Voluptatum neque possimus alias doloremque minima.
       execTime: 4.1025948e+18
       hookurl: Ut officia natus ut quidem pariatur voluptatem.
@@ -258,6 +258,8 @@ definitions:
         description: 成功标识
         example: false
         type: boolean
+    required:
+    - ok
     title: 'Mediatype identifier: vnd.ant.reg.result+json; view=default'
     type: object
   AntResult:
@@ -311,7 +313,7 @@ definitions:
       etype: Perferendis saepe neque qui id tenetur ea.
       from: Eum commodi molestiae est.
       occtime: 1994-12-09T08:49:58+08:00
-      params: 68bcb8dc-4778-4a00-8a9a-14fe0d9f08d1
+      params: f17125e9-5ba5-4f74-bbff-7d59bb2cc849
     properties:
       action:
         description: 事件行为
@@ -332,7 +334,7 @@ definitions:
         type: string
       params:
         description: 事件发生时间
-        example: 68bcb8dc-4778-4a00-8a9a-14fe0d9f08d1
+        example: f17125e9-5ba5-4f74-bbff-7d59bb2cc849
     required:
     - etype
     - action
@@ -555,12 +557,11 @@ paths:
         name: etype
         required: false
         type: string
-      - description: 分页
+      - description: 上次查询最后id
         in: query
-        minimum: 1
-        name: page
+        name: previd
         required: false
-        type: integer
+        type: string
       produces:
       - vnd.ant.error+json
       - vnd.ant.error+json

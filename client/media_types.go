@@ -5,18 +5,19 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package client
 
 import (
-	"github.com/goadesign/goa"
 	"net/http"
 	"time"
+
+	"github.com/goadesign/goa"
 )
 
-// 处理失败 (default view)
+// AntError 处理失败 (default view)
 //
 // Identifier: vnd.ant.error+json; view=default
 type AntError struct {
@@ -31,7 +32,7 @@ func (c *Client) DecodeAntError(resp *http.Response) (*AntError, error) {
 	return &decoded, err
 }
 
-// 事件监听信息 (default view)
+// AntEvenBack 事件监听信息 (default view)
 //
 // Identifier: vnd.ant.even.back+json; view=default
 type AntEvenBack struct {
@@ -94,7 +95,7 @@ func (c *Client) DecodeAntEvenBackCollection(resp *http.Response) (AntEvenBackCo
 	return decoded, err
 }
 
-// 事件监听列表 (default view)
+// AntEventHistoryList 事件监听列表 (default view)
 //
 // Identifier: vnd.ant.event.history.list+json; view=default
 type AntEventHistoryList struct {
@@ -123,7 +124,7 @@ func (c *Client) DecodeAntEventHistoryList(resp *http.Response) (*AntEventHistor
 	return &decoded, err
 }
 
-// 事件监听信息 (default view)
+// AntHistoryInfo 事件监听信息 (default view)
 //
 // Identifier: vnd.ant.history.info+json; view=default
 type AntHistoryInfo struct {
@@ -158,7 +159,7 @@ func (c *Client) DecodeAntHistoryInfo(resp *http.Response) (*AntHistoryInfo, err
 	return &decoded, err
 }
 
-// 事件监听信息 (default view)
+// AntListen 事件监听信息 (default view)
 //
 // Identifier: vnd.ant.listen+json; view=default
 type AntListen struct {
@@ -198,7 +199,7 @@ func (c *Client) DecodeAntListen(resp *http.Response) (*AntListen, error) {
 	return &decoded, err
 }
 
-// 事件监听列表 (default view)
+// AntListenList 事件监听列表 (default view)
 //
 // Identifier: vnd.ant.listen.list+json; view=default
 type AntListenList struct {
@@ -227,22 +228,22 @@ func (c *Client) DecodeAntListenList(resp *http.Response) (*AntListenList, error
 	return &decoded, err
 }
 
-// 注册事件监听成功 (default view)
+// AntRegResult 注册事件监听成功 (default view)
 //
 // Identifier: vnd.ant.reg.result+json; view=default
 type AntRegResult struct {
 	// 成功标识
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
-// 注册事件监听成功 (failed view)
+// AntRegResultFailed 注册事件监听成功 (failed view)
 //
 // Identifier: vnd.ant.reg.result+json; view=failed
 type AntRegResultFailed struct {
 	// 如果ok=false,失败原因
 	Msg *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
 	// 成功标识
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
 // DecodeAntRegResult decodes the AntRegResult instance encoded in resp body.
@@ -259,7 +260,7 @@ func (c *Client) DecodeAntRegResultFailed(resp *http.Response) (*AntRegResultFai
 	return &decoded, err
 }
 
-// 创建事件成功返回 (default view)
+// AntResult 创建事件成功返回 (default view)
 //
 // Identifier: vnd.ant.result+json; view=default
 type AntResult struct {

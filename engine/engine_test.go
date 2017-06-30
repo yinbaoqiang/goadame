@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/yinbaoqiang/goadame/app"
 	. "github.com/yinbaoqiang/goadame/engine"
 )
 
@@ -19,6 +20,19 @@ const (
 	hookSuccess = "HookSuccess"
 	storeOne    = "StoreOne"
 )
+
+// Storer 数据存储
+type testListenerStore struct {
+}
+
+func (s *testListenerStore) Watch(func(ctyp ChgType, lis app.AntListen)) {
+
+}
+
+// 获取所有的
+func (s *testListenerStore) All() (res []*app.AntListen, err error) {
+	return
+}
 
 // Storer 数据存储
 type testStore struct {
@@ -105,7 +119,7 @@ func TestOK(t *testing.T) {
 				storecnt++
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "action_test")
 	engine.Start()
 	for _, e := range defEvents {
@@ -152,7 +166,7 @@ func TestOK2(t *testing.T) {
 				storecnt++
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -223,7 +237,7 @@ func TestError500(t *testing.T) {
 				storecnt++
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -294,7 +308,7 @@ func TestError400(t *testing.T) {
 				storecnt++
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -364,7 +378,7 @@ func TestErrorTimeOut(t *testing.T) {
 				atomic.AddInt64(&storecnt, 1)
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -404,7 +418,7 @@ func BenchmarkPutEvent(b *testing.B) {
 				atomic.AddInt64(&storecnt, 1)
 			}
 		},
-	})
+	}, &testListenerStore{})
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for i := 0; i < b.N; i++ {

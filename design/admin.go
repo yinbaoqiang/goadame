@@ -58,12 +58,10 @@ var _ = apidsl.Resource("listen", func() {
 		apidsl.Description("获取注册事件监听列表")
 		apidsl.Routing(apidsl.GET(""))
 		apidsl.Params(func() {
-			apidsl.Param("page", design.Integer, "分页", func() {
-				apidsl.Minimum(1)
-			})
 			apidsl.Param("count", design.Integer, "分页数量", func() {
 				apidsl.Minimum(5)
 			})
+			apidsl.Param("previd", design.String, "上次查询最后id")
 			apidsl.Param("etype", design.String, "事件类型,不设置则查询所有事件类型")
 			apidsl.Param("action", design.String, "事件行为,不设置该项则查询所有行为")
 		})

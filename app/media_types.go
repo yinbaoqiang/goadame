@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/yinbaoqiang/goadame/design
-// --out=E:\go\src\github.com\yinbaoqiang\goadame
+// --out=$(GOPATH)/src/github.com/yinbaoqiang/goadame
 // --version=v1.2.0-dirty
 
 package app
@@ -182,7 +182,7 @@ func (mt *AntListenList) Validate() (err error) {
 // Identifier: vnd.ant.reg.result+json; view=default
 type AntRegResult struct {
 	// 成功标识
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
 // 注册事件监听成功 (failed view)
@@ -192,7 +192,7 @@ type AntRegResultFailed struct {
 	// 如果ok=false,失败原因
 	Msg *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
 	// 成功标识
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
+	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
 // 创建事件成功返回 (default view)
