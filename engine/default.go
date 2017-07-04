@@ -6,8 +6,33 @@ var defaultEnginer EventEnginer
 
 func init() {
 	defaultStore := &showStore{}
+	opt := Option{
+		TimeOut: 10 * time.Second,
+		Estore:  defaultStore,
+		Lstore:  defaultStore,
+		TryCnt:  3,
+	}
+	defaultEnginer = CreateEventEnginer(opt)
+}
 
-	defaultEnginer = CreateEventEnginer(10*time.Second, defaultStore, defaultStore)
+// SetTryCnt 设置默认引擎的错误重试次数
+func SetTryCnt(c int) {
+	e, ok := defaultEnginer.(*eventEngine)
+	if ok {
+		e.tryCnt = c
+	}
+}
+
+// SetTimeOut 设置默认引擎的超时时间
+// to 必须大于1秒
+func SetTimeOut(to time.Duration) {
+	e, ok := defaultEnginer.(*eventEngine)
+	if ok {
+		if to > time.Second {
+
+			e.timeOut = to
+		}
+	}
 }
 
 // SetEventStorer 设置事件存储
@@ -26,7 +51,7 @@ func Put(ei Event) error {
 }
 
 // Start 启动默认引擎
-func Start() error{
+func Start() error {
 	return defaultEnginer.Start()
 }
 

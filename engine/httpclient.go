@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"time"
+
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
 )
@@ -19,7 +21,12 @@ type eventClient struct {
 }
 
 // newEventClient instantiates the client.
-func newEventClient() *eventClient {
+func newEventClient(timeout time.Duration) *eventClient {
+	cli := http.DefaultClient
+	if timeout > 0 {
+
+		cli.Timeout = timeout
+	}
 	client := &eventClient{
 		Client:  goaclient.New(goaclient.HTTPClientDoer(http.DefaultClient)),
 		Encoder: goa.NewHTTPEncoder(),

@@ -9,7 +9,7 @@ import (
 	"github.com/yinbaoqiang/goadame/store/etcd"
 )
 
-func initEngine(endpoints []string, dialTimeout int) error {
+func initEngine(endpoints []string, dialTimeout int, trycnt int, hooktimeout int) error {
 	// 初始化store
 	var cfg clientv3.Config
 	cfg.Endpoints = endpoints
@@ -18,10 +18,16 @@ func initEngine(endpoints []string, dialTimeout int) error {
 	store.SetDefaultListener(s)
 	engine.SetEventStorer(store.CreateEventStore())
 	engine.SetListenerStore(s)
+	engine.SetTryCnt(trycnt)
+	engine.SetTimeOut(time.Duration(hooktimeout) * time.Second)
 	err := engine.Start()
 
 	if err != nil {
 		return err
 	}
 	return nil
+}
+func initMgo(url, dbname string) {
+	store.InitDefautMyMgo(url, dbname)
+
 }

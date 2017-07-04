@@ -107,19 +107,24 @@ func TestOK(t *testing.T) {
 	server := httptest.NewServer(&testServer{gt: t, defEvents: defEvents})
 	defer server.Close()
 	storecnt := 0
-	engine := CreateEventEnginer(3*time.Second, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				t.Errorf("该处不应该失败")
-				delete(defEvents, ei.Eid)
-			case hookSuccess:
-				delete(defEvents, ei.Eid)
-			case storeOne:
-				storecnt++
-			}
+	opt := Option{
+		TimeOut: 3 * time.Second,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					t.Errorf("该处不应该失败")
+					delete(defEvents, ei.Eid)
+				case hookSuccess:
+					delete(defEvents, ei.Eid)
+				case storeOne:
+					storecnt++
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
 	engine.ListenManager().Add(server.URL, "typ_test", "action_test")
 	engine.Start()
 	for _, e := range defEvents {
@@ -154,19 +159,24 @@ func TestOK2(t *testing.T) {
 	server := httptest.NewServer(&testServer{gt: t, defEvents: defEvents})
 	defer server.Close()
 	storecnt := 0
-	engine := CreateEventEnginer(3*time.Second, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				t.Errorf("该处不应该失败")
-				delete(defEvents, ei.Eid)
-			case hookSuccess:
-				delete(defEvents, ei.Eid)
-			case storeOne:
-				storecnt++
-			}
+	opt := Option{
+		TimeOut: 3 * time.Second,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					t.Errorf("该处不应该失败")
+					delete(defEvents, ei.Eid)
+				case hookSuccess:
+					delete(defEvents, ei.Eid)
+				case storeOne:
+					storecnt++
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -225,19 +235,26 @@ func TestError500(t *testing.T) {
 	}))
 	defer server.Close()
 	storecnt := 0
-	engine := CreateEventEnginer(3*time.Second, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				delete(defEvents, ei.Eid)
-			case hookSuccess:
-				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Eid)
-			case storeOne:
-				storecnt++
-			}
+
+	opt := Option{
+		TimeOut: 3 * time.Second,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					t.Errorf("该处不应该失败")
+					delete(defEvents, ei.Eid)
+				case hookSuccess:
+					delete(defEvents, ei.Eid)
+				case storeOne:
+					storecnt++
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
+
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -296,19 +313,24 @@ func TestError400(t *testing.T) {
 	}))
 	defer server.Close()
 	storecnt := 0
-	engine := CreateEventEnginer(3*time.Second, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				delete(defEvents, ei.Eid)
-			case hookSuccess:
-				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Eid)
-			case storeOne:
-				storecnt++
-			}
+	opt := Option{
+		TimeOut: 3 * time.Second,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					t.Errorf("该处不应该失败")
+					delete(defEvents, ei.Eid)
+				case hookSuccess:
+					delete(defEvents, ei.Eid)
+				case storeOne:
+					storecnt++
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -366,19 +388,25 @@ func TestErrorTimeOut(t *testing.T) {
 	}))
 	defer server.Close()
 	storecnt := int64(0)
-	engine := CreateEventEnginer(100*time.Millisecond, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				delete(defEvents, ei.Eid)
-			case hookSuccess:
-				t.Errorf("该处不应该成功")
-				delete(defEvents, ei.Eid)
-			case storeOne:
-				atomic.AddInt64(&storecnt, 1)
-			}
+
+	opt := Option{
+		TimeOut: 100 * time.Millisecond,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					t.Errorf("该处不应该失败")
+					delete(defEvents, ei.Eid)
+				case hookSuccess:
+					delete(defEvents, ei.Eid)
+				case storeOne:
+					atomic.AddInt64(&storecnt, 1)
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for _, e := range defEvents {
@@ -406,19 +434,23 @@ func BenchmarkPutEvent(b *testing.B) {
 	defer server.Close()
 	storecnt := int64(0)
 	errorcnt := 0
+	opt := Option{
+		TimeOut: 3000 * time.Millisecond,
+		Estore: &testStore{
+			callback: func(ei Event, opresult string) {
+				switch opresult {
+				case hookError:
+					errorcnt++
+				case hookSuccess:
 
-	engine := CreateEventEnginer(3000*time.Millisecond, &testStore{
-		callback: func(ei Event, opresult string) {
-			switch opresult {
-			case hookError:
-				errorcnt++
-			case hookSuccess:
-
-			case storeOne:
-				atomic.AddInt64(&storecnt, 1)
-			}
+				case storeOne:
+					atomic.AddInt64(&storecnt, 1)
+				}
+			},
 		},
-	}, &testListenerStore{})
+		Lstore: &testListenerStore{},
+	}
+	engine := CreateEventEnginer(opt)
 	engine.ListenManager().Add(server.URL, "typ_test", "")
 	engine.Start()
 	for i := 0; i < b.N; i++ {

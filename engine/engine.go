@@ -28,22 +28,34 @@ type EventEnginer interface {
 	SetListenerStore(s ListenerStore)
 }
 
-// CreateEventEnginer 创建事件引擎
-func CreateEventEnginer(timeOut time.Duration, store EventStorer, lstore ListenerStore) EventEnginer {
+// Option 创建引擎参数
+type Option struct {
+	TimeOut time.Duration
+	Estore  EventStorer
+	Lstore  ListenerStore
+	TryCnt  int
+}
 
-	if store == nil {
-		store = defaultEventStore
+// CreateEventEnginer 创建事件引擎
+func CreateEventEnginer(opt Option) EventEnginer {
+
+	if opt.Estore == nil {
+		opt.Estore = defaultEventStore
 	}
-	if lstore == nil {
-		lstore = defaultEventStore
+	if opt.Lstore == nil {
+		opt.Lstore = defaultEventStore
 	}
-	if timeOut == 0 {
-		timeOut = 3 * time.Second
+	if opt.TimeOut == 0 {
+		opt.TimeOut = 3 * time.Second
+	}
+	if opt.TryCnt < 1 {
+		opt.TryCnt = 1
 	}
 	return &eventEngine{
-		lstore:  lstore,
-		store:   store,
-		timeOut: timeOut,
+		lstore:  opt.Lstore,
+		store:   opt.Estore,
+		timeOut: opt.TimeOut,
+		tryCnt:  opt.TryCnt,
 	}
 }
 
@@ -54,6 +66,7 @@ type eventEngine struct {
 	lstore  ListenerStore
 	store   EventStorer
 	timeOut time.Duration
+	tryCnt  int
 }
 
 func (e *eventEngine) SetEventStorer(s EventStorer) {
@@ -117,6 +130,9 @@ func (e *eventEngine) listenWatch() {
 	})
 }
 func (e *eventEngine) Start() error {
+	if e.tryCnt < 1 {
+		e.tryCnt = 1
+	}
 	e.echan = make(chan Event, 10)
 	err := e.initListenManager()
 	if err != nil {
@@ -151,13 +167,20 @@ func (e *eventEngine) one(ei Event) {
 	for _, h := range hu {
 		e.wg.Add(1)
 		// 加入调用队列
-		//	fmt.Printf("%s:%s=>%s\n", ei.Etype, ei.Action, h.url)
+		fmt.Printf("%s:%s=>%s\n", ei.Etype, ei.Action, h.url)
 		nh := h
 		nh.put(func() {
 			defer e.wg.Done()
 			// 执行钩子回调
-			//	fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Etype, ei.Action, nh.url)
-			e.hook(nh.url, ei)
+			fmt.Printf("执行钩子回调:%s:%s=>%s\n", ei.Etype, ei.Action, nh.url)
+			for i := 0; i < e.tryCnt; i++ {
+
+				err := e.hook(nh.url, ei)
+				if err == nil {
+					return
+				}
+			}
+
 		})
 
 	}
@@ -168,7 +191,7 @@ func (e *eventEngine) one(ei Event) {
 // url 发送地址
 // ei 事件
 func (e *eventEngine) _sendEvent(ctx context.Context, url string, ei Event) error {
-	res, err := newEventClient().SendEvent(ctx, url, ei)
+	res, err := newEventClient(e.timeOut).SendEvent(ctx, url, ei)
 	if err != nil {
 
 		return err
@@ -190,12 +213,12 @@ func (e *eventEngine) _sendEvent(ctx context.Context, url string, ei Event) erro
 }
 
 // 调用监听钩子
-func (e *eventEngine) hook(url string, ei Event) {
+func (e *eventEngine) hook(url string, ei Event) error {
 
 	// 记录开始时间
 	start := time.Now()
 	rchan := make(chan error, 1)
-	ctx, cancel := context.WithTimeout(context.Background(), e.timeOut)
+	ctx, cancel := context.WithTimeout(context.Background(), e.timeOut+5*time.Second)
 	defer cancel()
 	go func() {
 		defer close(rchan)
@@ -210,17 +233,22 @@ func (e *eventEngine) hook(url string, ei Event) {
 	case <-ctx.Done():
 		if ctx.Err() != nil {
 			// 超时失败
+			fmt.Printf("%s:%s=>%s 执行超时\n", ei.Etype, ei.Action, url)
 			e.hookError(url, ei, ctx.Err(), start, time.Now())
-			return
+			return ctx.Err()
 
 		}
 	case err := <-rchan:
+
 		if err != nil {
+			fmt.Printf("%s:%s=>%s 执行失败\n", ei.Etype, ei.Action, url)
 			e.hookError(url, ei, err, start, time.Now())
-			return
+			return err
 		}
+		fmt.Printf("%s:%s=>%s 执行成功\n", ei.Etype, ei.Action, url)
 		e.hookSuccess(url, ei, start, time.Now())
 	}
+	return nil
 
 }
 

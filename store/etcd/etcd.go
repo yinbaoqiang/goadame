@@ -104,7 +104,6 @@ func (c client) execTimeout(handler func(ctx context.Context, cli *clientv3.Clie
 func (c client) txn(ifcmps []clientv3.Cmp, thenop []clientv3.Op, elseop []clientv3.Op) error {
 	return c.execTimeout(func(ctx context.Context, cli *clientv3.Client) (err error) {
 		txn := cli.Txn(ctx)
-
 		txn = txn.If(ifcmps...).Then(thenop...)
 		if len(elseop) > 0 {
 			txn.Else(thenop...)
